@@ -619,6 +619,11 @@ do
 	end
 end
 
+local player = owner
+local character = player.Character
+local humanoid = character:WaitForChild("Humanoid")
+local rootPart = character:WaitForChild("HumanoidRootPart")
+
 local sword = LoadAssets(107336795603349):Get("Crescendo")
 sword.Parent = character
 
@@ -635,9 +640,9 @@ theme.Volume = 1
 
 -- Hacer las partes de la espada sin masa
 for _, v in pairs(sword:GetDescendants()) do
-    if v:IsA("BasePart") then
-        v.Massless = true
-    end
+	if v:IsA("BasePart") then
+		v.Massless = true
+	end
 end
 
 -- Crear el weld para la espada
@@ -649,125 +654,125 @@ weld.C0 = CFrame.new(0, -1, 0) * CFrame.Angles(math.rad(90), math.rad(180), 0)
 
 -- Funciones para la animación de ojos
 local function findEyeParts(eyeGroup)
-    local base = eyeGroup:FindFirstChild("Base")
-    if not base then
-        warn("No se pudo encontrar el objeto Base en el grupo: " .. eyeGroup.Name)
-        return
-    end
-    local center = base:FindFirstChild("Center")
-    local left = base:FindFirstChild("Left")
-    local right = base:FindFirstChild("Right")
-    if not (center and left and right) then
-        warn("No se pudieron encontrar todos los objetos en Base dentro del grupo de ojos: " .. eyeGroup.Name)
-        return
-    end
-    return base, center, left, right
+	local base = eyeGroup:FindFirstChild("Base")
+	if not base then
+		warn("No se pudo encontrar el objeto Base en el grupo: " .. eyeGroup.Name)
+		return
+	end
+	local center = base:FindFirstChild("Center")
+	local left = base:FindFirstChild("Left")
+	local right = base:FindFirstChild("Right")
+	if not (center and left and right) then
+		warn("No se pudieron encontrar todos los objetos en Base dentro del grupo de ojos: " .. eyeGroup.Name)
+		return
+	end
+	return base, center, left, right
 end
 
 local function shakeObject(object)
-    local originalPosition = object.Position
-    coroutine.wrap(function()
-        while true do
-            local offsetX = math.random(-1, 0.7) * 0.5
-            local offsetY = math.random(-1, 0.7) * 0.5
-            object.Position = originalPosition + UDim2.new(0, offsetX, 0, offsetY)
-            RunService.Heartbeat:Wait()
-        end
-    end)()
+	local originalPosition = object.Position
+	coroutine.wrap(function()
+		while true do
+			local offsetX = math.random(-1, 0.7) * 0.5
+			local offsetY = math.random(-1, 0.7) * 0.5
+			object.Position = originalPosition + UDim2.new(0, offsetX, 0, offsetY)
+			RunService.Heartbeat:Wait()
+		end
+	end)()
 end
 
 local function tweenEyePosition(eye, endPosition, duration)
-    local tweenInfo = TweenInfo.new(duration, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-    local tween = TweenService:Create(eye, tweenInfo, {Position = endPosition})
-    tween:Play()
-    return tween
+	local tweenInfo = TweenInfo.new(duration, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+	local tween = TweenService:Create(eye, tweenInfo, {Position = endPosition})
+	tween:Play()
+	return tween
 end
 
 local function animateEyeMovement(centerEye, leftEye, rightEye, direction)
-    if direction == "right" then
-        tweenEyePosition(centerEye, UDim2.new(0.8, 0, 0.5, 0), 0.5)
-        tweenEyePosition(leftEye, UDim2.new(0.7, 0, 0.5, 0), 0.5)
-        tweenEyePosition(rightEye, UDim2.new(0.9, 0, 0.5, 0), 0.5)
-    elseif direction == "left" then
-        tweenEyePosition(centerEye, UDim2.new(0.2, 0, 0.5, 0), 0.5)
-        tweenEyePosition(leftEye, UDim2.new(0.1, 0, 0.5, 0), 0.5)
-        tweenEyePosition(rightEye, UDim2.new(0.3, 0, 0.5, 0), 0.5)
-    else
-        tweenEyePosition(centerEye, UDim2.new(0.5, 0, 0.5, 0), 0.5)
-        tweenEyePosition(leftEye, UDim2.new(0.4, 0, 0.5, 0), 0.5)
-        tweenEyePosition(rightEye, UDim2.new(0.6, 0, 0.5, 0), 0.5)
-    end
+	if direction == "right" then
+		tweenEyePosition(centerEye, UDim2.new(0.8, 0, 0.5, 0), 0.5)
+		tweenEyePosition(leftEye, UDim2.new(0.7, 0, 0.5, 0), 0.5)
+		tweenEyePosition(rightEye, UDim2.new(0.9, 0, 0.5, 0), 0.5)
+	elseif direction == "left" then
+		tweenEyePosition(centerEye, UDim2.new(0.2, 0, 0.5, 0), 0.5)
+		tweenEyePosition(leftEye, UDim2.new(0.1, 0, 0.5, 0), 0.5)
+		tweenEyePosition(rightEye, UDim2.new(0.3, 0, 0.5, 0), 0.5)
+	else
+		tweenEyePosition(centerEye, UDim2.new(0.5, 0, 0.5, 0), 0.5)
+		tweenEyePosition(leftEye, UDim2.new(0.4, 0, 0.5, 0), 0.5)
+		tweenEyePosition(rightEye, UDim2.new(0.6, 0, 0.5, 0), 0.5)
+	end
 end
 
 local function animateBothEyes(Base1, Center1, Left1, Right1, Base2, Center2, Left2, Right2)
-    shakeObject(Base1)
-    shakeObject(Center1)
-    shakeObject(Left1)
-    shakeObject(Right1)
-    shakeObject(Base2)
-    shakeObject(Center2)
-    shakeObject(Left2)
-    shakeObject(Right2)
+	shakeObject(Base1)
+	shakeObject(Center1)
+	shakeObject(Left1)
+	shakeObject(Right1)
+	shakeObject(Base2)
+	shakeObject(Center2)
+	shakeObject(Left2)
+	shakeObject(Right2)
 
-    coroutine.wrap(function()
-        while true do
-            animateEyeMovement(Center1, Left1, Right1, "right")
-            animateEyeMovement(Center2, Left2, Right2, "right")
-            wait(1)
-            animateEyeMovement(Center1, Left1, Right1, "center")
-            animateEyeMovement(Center2, Left2, Right2, "center")
-            wait(1)
-            animateEyeMovement(Center1, Left1, Right1, "left")
-            animateEyeMovement(Center2, Left2, Right2, "left")
-            wait(1)
-            animateEyeMovement(Center1, Left1, Right1, "center")
-            animateEyeMovement(Center2, Left2, Right2, "center")
-            wait(1)
-        end
-    end)()
+	coroutine.wrap(function()
+		while true do
+			animateEyeMovement(Center1, Left1, Right1, "right")
+			animateEyeMovement(Center2, Left2, Right2, "right")
+			wait(1)
+			animateEyeMovement(Center1, Left1, Right1, "center")
+			animateEyeMovement(Center2, Left2, Right2, "center")
+			wait(1)
+			animateEyeMovement(Center1, Left1, Right1, "left")
+			animateEyeMovement(Center2, Left2, Right2, "left")
+			wait(1)
+			animateEyeMovement(Center1, Left1, Right1, "center")
+			animateEyeMovement(Center2, Left2, Right2, "center")
+			wait(1)
+		end
+	end)()
 end
 
 -- Iniciar la animación de ojos
 local Eyes = handle:WaitForChild("Crescendo"):WaitForChild("Eyes")
 if Eyes then
-    local Eye_Normal1 = Eyes:FindFirstChild("Eye_Normal")
-    local Eye_Normal2 = Eyes:FindFirstChild("Eye_Normal2")
-    if Eye_Normal1 and Eye_Normal2 then
-        local Base1, Center1, Left1, Right1 = findEyeParts(Eye_Normal1)
-        local Base2, Center2, Left2, Right2 = findEyeParts(Eye_Normal2)
-        if Base1 and Base2 then
-            print("Iniciando animación sincronizada de los ojos y sus bases")
-            animateBothEyes(Base1, Center1, Left1, Right1, Base2, Center2, Left2, Right2)
-        else
-            warn("No se pudieron encontrar todas las partes necesarias para la animación de ojos")
-        end
-    else
-        warn("No se encontraron los grupos de ojos esperados")
-    end
+	local Eye_Normal1 = Eyes:FindFirstChild("Eye_Normal")
+	local Eye_Normal2 = Eyes:FindFirstChild("Eye_Normal2")
+	if Eye_Normal1 and Eye_Normal2 then
+		local Base1, Center1, Left1, Right1 = findEyeParts(Eye_Normal1)
+		local Base2, Center2, Left2, Right2 = findEyeParts(Eye_Normal2)
+		if Base1 and Base2 then
+			print("Iniciando animación sincronizada de los ojos y sus bases")
+			animateBothEyes(Base1, Center1, Left1, Right1, Base2, Center2, Left2, Right2)
+		else
+			warn("No se pudieron encontrar todas las partes necesarias para la animación de ojos")
+		end
+	else
+		warn("No se encontraron los grupos de ojos esperados")
+	end
 else
-    warn("No se encontró la carpeta Eyes en la espada")
+	warn("No se encontró la carpeta Eyes en la espada")
 end
 
 -- Animación de movimiento
 RunService.Heartbeat:Connect(function()
-    local velocity = rootPart.Velocity
-    local magnitude = velocity.Magnitude
-    
-    humanoid.WalkSpeed = 24
-    
-    if magnitude > movementThreshold then
-        if isPlaying then
-            idleTrack:Stop()
-            runTrack:Play()
-            isPlaying = false
-        end
-    else
-        if not isPlaying then
-            idleTrack:Play()
-            runTrack:Stop()
-            isPlaying = true
-        end
-    end
+	local velocity = rootPart.Velocity
+	local magnitude = velocity.Magnitude
+
+	humanoid.WalkSpeed = 24
+
+	if magnitude > movementThreshold then
+		if isPlaying then
+			idleTrack:Stop()
+			runTrack:Play()
+			isPlaying = false
+		end
+	else
+		if not isPlaying then
+			idleTrack:Play()
+			runTrack:Stop()
+			isPlaying = true
+		end
+	end
 end)
 
 print("Script de la espada Crescendo cargado y ejecutándose")
