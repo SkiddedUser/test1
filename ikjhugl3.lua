@@ -624,8 +624,8 @@ local RunService = game:GetService("RunService")
 local HttpService = game:GetService("HttpService")
 local TweenService = game:GetService("TweenService")
 
-local idleAnimation = loadstring(HttpService:GetAsync("https://raw.githubusercontent.com/dukapanzer/void-scripts/main/Neptunian_Idle_Reworked.lua", true))()
-local runAnimation = loadstring(HttpService:GetAsync("https://raw.githubusercontent.com/dukapanzer/void-scripts/main/Neptunian_Run.lua", true))()
+local idleAnimation = loadstring(HttpService:GetAsync("https://raw.githubusercontent.com/SkiddedUser/erereerer/main/rereeree.lua", true))()
+local runAnimation = loadstring(HttpService:GetAsync("https://raw.githubusercontent.com/SkiddedUser/erqrwrqr/main/walk.lua", true))()
 
 local attack1Animation = loadstring(HttpService:GetAsync("https://raw.githubusercontent.com/dukapanzer/void-scripts/main/Neptunian_Attack1.lua", true))()
 local attack2Animation = loadstring(HttpService:GetAsync("https://raw.githubusercontent.com/dukapanzer/void-scripts/main/Neptunian_Attack2.lua", true))()
