@@ -635,7 +635,7 @@ local character = player.Character or player.CharacterAdded:Wait()
 local humanoid = character:WaitForChild("Humanoid")
 local rootPart = character:WaitForChild("HumanoidRootPart")
 
--- Función para limpiar el MainFolder
+-- Función para limpiar el MainFolder existente
 local function cleanupMainFolder()
     local existingFolder = game:GetService("LocalizationService"):FindFirstChild(player.Name .. "'s MainFolder")
     if existingFolder then
@@ -654,24 +654,11 @@ local remote = Instance.new("RemoteEvent")
 remote.Parent = mainFolder
 
 -- Conectar la función de limpieza al evento de muerte del personaje
-local function onCharacterDied()
-    cleanupMainFolder()
-end
-
-humanoid.Died:Connect(onCharacterDied)
-
--- Reconectar la función de limpieza cuando el personaje reaparece
-player.CharacterAdded:Connect(function(newCharacter)
-    character = newCharacter
-    humanoid = character:WaitForChild("Humanoid")
-    rootPart = character:WaitForChild("HumanoidRootPart")
-    humanoid.Died:Connect(onCharacterDied)
-end)
+humanoid.Died:Connect(cleanupMainFolder)
 
 NLS([[
 local Players = game:GetService("Players")
 local plr = Players.LocalPlayer
-local char = plr.Character or plr.CharacterAdded:Wait()
 local mouse = plr:GetMouse()
 
 local name = plr.Name
@@ -692,15 +679,14 @@ local function setupRemote()
     mouse.Button1Down:Connect(function()
         remote:FireServer()
     end)
+    
+    print("Remote setup complete")
 end
 
 setupRemote()
 
--- Reconectar cuando el personaje reaparece
-plr.CharacterAdded:Connect(function(newChar)
-    char = newChar
-    setupRemote()
-end)
+-- No es necesario reconectar cuando el personaje reaparece,
+-- ya que el script principal se encargará de crear un nuevo MainFolder
 ]])
 
 local idleTrack = AnimationTrack.new()
@@ -736,22 +722,58 @@ local movementThreshold = 0.1
 
 local combo = 0
 
-remote.OnServerEvent:Connect(function()
-    combo = combo + 1
-    print(combo)
+local function setupAttacks()
+    remote.OnServerEvent:Connect(function()
+        combo = combo + 1
+        print("Attack triggered, combo:", combo)
 
-    if combo == 1 then
-        attack1Track:Play()
-    end
+        if combo == 1 then
+            attack1Track:Play()
+        elseif combo == 2 then
+            attack2Track:Play()
+        end
 
-    if combo == 2 then
-        attack2Track:Play()
-    end
+        if combo >= 2 then
+            combo = 0
+        end
+    end)
+    
+    print("Attacks setup complete")
+end
 
-    if combo > 3 then
-        combo = 0
-    end
-end)
+setupAttacks()
+
+-- Esta función se ejecutará cada vez que se cree un nuevo personaje
+local function onCharacterAdded(newCharacter)
+    character = newCharacter
+    humanoid = character:WaitForChild("Humanoid")
+    rootPart = character:WaitForChild("HumanoidRootPart")
+    
+    -- Limpiar y recrear el MainFolder
+    cleanupMainFolder()
+    
+    mainFolder = Instance.new("Folder")
+    mainFolder.Parent = game:GetService("LocalizationService")
+    mainFolder.Name = player.Name .. "'s MainFolder"
+
+    remote = Instance.new("RemoteEvent")
+    remote.Parent = mainFolder
+    
+    -- Configurar las animaciones para el nuevo personaje
+    idleTrack:setRig(character)
+    runTrack:setRig(character)
+    attack1Track:setRig(character)
+    attack2Track:setRig(character)
+    
+    -- Configurar los ataques nuevamente
+    setupAttacks()
+    
+    -- Conectar la función de limpieza al evento de muerte del nuevo personaje
+    humanoid.Died:Connect(cleanupMainFolder)
+end
+
+-- Conectar la función onCharacterAdded al evento CharacterAdded del jugador
+player.CharacterAdded:Connect(onCharacterAdded)
 
 local sword = LoadAssets(107336795603349):Get("Crescendo")
 sword.Parent = character
