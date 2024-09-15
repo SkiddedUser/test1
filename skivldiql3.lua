@@ -721,11 +721,11 @@ local handle = sword:WaitForChild("Handle")
 -- Configurar el sonido
 local theme = Instance.new("Sound")
 theme.Parent = character:WaitForChild("Torso")
-theme.SoundId = "rbxassetid://12578363577"
+theme.SoundId = "rbxassetid://18550614625"
 theme.Looped = true
 theme.Playing = true
 theme.PlaybackSpeed = 1
-theme.Volume = 1
+theme.Volume = 0.8
 
 -- Hacer las partes de la espada sin masa
 for _, v in pairs(sword:GetDescendants()) do
