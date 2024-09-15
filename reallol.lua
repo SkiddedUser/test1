@@ -623,7 +623,6 @@ local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local HttpService = game:GetService("HttpService")
 local TweenService = game:GetService("TweenService")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local idleAnimation = loadstring(HttpService:GetAsync("https://raw.githubusercontent.com/SkiddedUser/erereerer/main/rereeree.lua", true))()
 local runAnimation = loadstring(HttpService:GetAsync("https://raw.githubusercontent.com/SkiddedUser/erqrwrqr/main/walk.lua", true))()
@@ -632,10 +631,9 @@ local attack2Animation = loadstring(HttpService:GetAsync("https://raw.githubuser
 
 local player = owner
 
--- Crear un RemoteEvent para la comunicación entre el cliente y el servidor
-local attackRemote = Instance.new("RemoteEvent")
-attackRemote.Name = "AttackRemote"
-attackRemote.Parent = ReplicatedStorage
+-- Crear un BindableEvent local para manejar los ataques
+local attackBindable = Instance.new("BindableEvent")
+attackBindable.Name = "AttackBindable"
 
 local function setupCharacter(character)
     local humanoid = character:WaitForChild("Humanoid")
@@ -666,9 +664,7 @@ local function setupCharacter(character)
     attack2Track:AdjustWeight(5)
 
     -- Función para manejar las animaciones de ataque
-    local function onAttackRequested(plr, animationName)
-        if plr ~= player then return end -- Asegurarse de que solo el propietario pueda activar las animaciones
-
+    local function onAttackRequested(animationName)
         if animationName == "attack1" then
             attack1Track:Play()
         elseif animationName == "attack2" then
@@ -676,10 +672,10 @@ local function setupCharacter(character)
         end
     end
 
-    -- Conectar la función al RemoteEvent
-    attackRemote.OnServerEvent:Connect(onAttackRequested)
+    -- Conectar la función al BindableEvent
+    attackBindable.Event:Connect(onAttackRequested)
 
-    print("Character setup complete")
+    print("Character setup complete for " .. player.Name)
 end
 
 -- Configurar el personaje inicial
@@ -692,17 +688,17 @@ player.CharacterAdded:Connect(setupCharacter)
 
 NLS([[
 local Players = game:GetService("Players")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
 
 local player = Players.LocalPlayer
-local attackRemote = ReplicatedStorage:WaitForChild("AttackRemote")
 
 local combo = 0
 local lastClickTime = 0
 local clickCooldown = 0.1 -- Cooldown entre clics para evitar spam
 
-local function playAnimation(animationName)
-    attackRemote:FireServer(animationName)
+local function requestAttack(animationName)
+    -- Enviar el ataque al script del servidor
+    script.Parent.AttackBindable:Fire(animationName)
 end
 
 local function setupMouse()
@@ -719,9 +715,9 @@ local function setupMouse()
         print("Attack triggered, combo:", combo)
         
         if combo == 1 then
-            playAnimation("attack1")
+            requestAttack("attack1")
         elseif combo == 2 then
-            playAnimation("attack2")
+            requestAttack("attack2")
         end
         
         if combo >= 2 then
@@ -748,13 +744,13 @@ setupMouse()
 
 -- Reconectar cuando el personaje reaparece
 player.CharacterAdded:Connect(function(newCharacter)
+    wait(0.5) -- Pequeño retraso para asegurar que todo esté cargado
     setupMouse()
 end)
 
-print("NLS loaded successfully")
+print("NLS loaded successfully for " .. player.Name)
 ]])
 
-print("Main script loaded successfully")
 
 local sword = LoadAssets(107336795603349):Get("Crescendo")
 sword.Parent = character
