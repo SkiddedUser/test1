@@ -624,6 +624,7 @@ sword.Parent = character
 
 local handle = sword:WaitForChild("Handle")
 
+-- Configurar el sonido
 local theme = Instance.new("Sound")
 theme.Parent = character:WaitForChild("Torso")
 theme.SoundId = "rbxassetid://12578363577"
@@ -632,12 +633,14 @@ theme.Playing = true
 theme.PlaybackSpeed = 1
 theme.Volume = 1
 
-for i, v in pairs(sword:GetDescendants()) do
+-- Hacer las partes de la espada sin masa
+for _, v in pairs(sword:GetDescendants()) do
     if v:IsA("BasePart") then
         v.Massless = true
     end
 end
 
+-- Crear el weld para la espada
 local weld = Instance.new("Motor6D")
 weld.Parent = sword
 weld.Part0 = character:WaitForChild("Right Arm")
@@ -648,13 +651,15 @@ weld.C0 = CFrame.new(0, -1, 0) * CFrame.Angles(math.rad(90), math.rad(180), 0)
 local function findEyeParts(eyeGroup)
     local base = eyeGroup:FindFirstChild("Base")
     if not base then
-        error("No se pudo encontrar el objeto Base en el grupo: " .. eyeGroup.Name)
+        warn("No se pudo encontrar el objeto Base en el grupo: " .. eyeGroup.Name)
+        return
     end
     local center = base:FindFirstChild("Center")
     local left = base:FindFirstChild("Left")
     local right = base:FindFirstChild("Right")
     if not (center and left and right) then
-        error("No se pudieron encontrar todos los objetos en Base dentro del grupo de ojos: " .. eyeGroup.Name)
+        warn("No se pudieron encontrar todos los objetos en Base dentro del grupo de ojos: " .. eyeGroup.Name)
+        return
     end
     return base, center, left, right
 end
@@ -663,10 +668,10 @@ local function shakeObject(object)
     local originalPosition = object.Position
     coroutine.wrap(function()
         while true do
-            local offsetX = math.random(-1, .7) * 1
-            local offsetY = math.random(-1, .7) * 1
+            local offsetX = math.random(-1, 0.7) * 0.5
+            local offsetY = math.random(-1, 0.7) * 0.5
             object.Position = originalPosition + UDim2.new(0, offsetX, 0, offsetY)
-            wait(0.025)
+            RunService.Heartbeat:Wait()
         end
     end)()
 end
@@ -706,7 +711,6 @@ local function animateBothEyes(Base1, Center1, Left1, Right1, Base2, Center2, Le
 
     coroutine.wrap(function()
         while true do
-            print("Iniciando ciclo de animación para ambos ojos")
             animateEyeMovement(Center1, Left1, Right1, "right")
             animateEyeMovement(Center2, Left2, Right2, "right")
             wait(1)
@@ -719,25 +723,32 @@ local function animateBothEyes(Base1, Center1, Left1, Right1, Base2, Center2, Le
             animateEyeMovement(Center1, Left1, Right1, "center")
             animateEyeMovement(Center2, Left2, Right2, "center")
             wait(1)
-            print("Ciclo de animación completado para ambos ojos")
         end
     end)()
 end
 
 -- Iniciar la animación de ojos
-local Eyes = handle:FindFirstChild("Crescendo"):FindFirstChild("Eyes")
+local Eyes = handle:WaitForChild("Crescendo"):WaitForChild("Eyes")
 if Eyes then
     local Eye_Normal1 = Eyes:FindFirstChild("Eye_Normal")
     local Eye_Normal2 = Eyes:FindFirstChild("Eye_Normal2")
     if Eye_Normal1 and Eye_Normal2 then
         local Base1, Center1, Left1, Right1 = findEyeParts(Eye_Normal1)
         local Base2, Center2, Left2, Right2 = findEyeParts(Eye_Normal2)
-        print("Iniciando animación sincronizada de los ojos y sus bases")
-        animateBothEyes(Base1, Center1, Left1, Right1, Base2, Center2, Left2, Right2)
+        if Base1 and Base2 then
+            print("Iniciando animación sincronizada de los ojos y sus bases")
+            animateBothEyes(Base1, Center1, Left1, Right1, Base2, Center2, Left2, Right2)
+        else
+            warn("No se pudieron encontrar todas las partes necesarias para la animación de ojos")
+        end
+    else
+        warn("No se encontraron los grupos de ojos esperados")
     end
+else
+    warn("No se encontró la carpeta Eyes en la espada")
 end
 
--- Continuar con el resto del script (animación de movimiento, etc.)
+-- Animación de movimiento
 RunService.Heartbeat:Connect(function()
     local velocity = rootPart.Velocity
     local magnitude = velocity.Magnitude
@@ -749,14 +760,14 @@ RunService.Heartbeat:Connect(function()
             idleTrack:Stop()
             runTrack:Play()
             isPlaying = false
-            print("Stopped idle animation")
         end
     else
         if not isPlaying then
             idleTrack:Play()
             runTrack:Stop()
             isPlaying = true
-            print("Playing idle animation")
         end
     end
 end)
+
+print("Script de la espada Crescendo cargado y ejecutándose")
