@@ -712,7 +712,7 @@ remote.OnServerEvent:connect(function()
 	end
 end)
 
-local sword = LoadAssets(107336795603349):Get("Handle")
+local sword = LoadAssets(107336795603349):Get("Crescendo")
 sword.Parent = character
 
 local handle = sword:WaitForChild("Handle")
