@@ -741,100 +741,106 @@ weld.Part0 = character:WaitForChild("Right Arm")
 weld.Part1 = handle
 weld.C0 = CFrame.new(0, -1, 0) * CFrame.Angles(math.rad(90), math.rad(180), 0)
 
--- Función para encontrar las partes del ojo
+-- Funciones para la animación de ojos
 local function findEyeParts(eyeGroup)
-	local base = eyeGroup:FindFirstChild("Base")
-	if not base then
-		error("No se pudo encontrar el objeto Base en el grupo: " .. eyeGroup.Name)
-	end
-	local center = base:FindFirstChild("Center")
-	local left = base:FindFirstChild("Left")
-	local right = base:FindFirstChild("Right")
-	if not (center and left and right) then
-		error("No se pudieron encontrar todos los objetos en Base dentro del grupo de ojos: " .. eyeGroup.Name)
-	end
-	return base, center, left, right
+    if not eyeGroup then
+        error("No se encontró el grupo de ojos.") -- Agregar chequeo para evitar error de nil
+    end
+
+    local base = eyeGroup:FindFirstChild("Base")
+    if not base then
+        error("No se pudo encontrar el objeto Base en el grupo: " .. eyeGroup.Name)
+    end
+
+    local center = base:FindFirstChild("Center")
+    local left = base:FindFirstChild("Left")
+    local right = base:FindFirstChild("Right")
+    if not (center and left and right) then
+        error("No se pudieron encontrar todos los objetos en Base dentro del grupo de ojos: " .. eyeGroup.Name)
+    end
+
+    return base, center, left, right
 end
 
--- Función para agitar los objetos (animación de vibración)
 local function shakeObject(object)
-	local originalPosition = object.Position
-	while true do
-		local offsetX = math.random(-1, .7) * 1
-		local offsetY = math.random(-1, .7) * 1
-		object.Position = originalPosition + UDim2.new(0, offsetX, 0, offsetY)
-		wait(0.025)
-	end
+    local originalPosition = object.Position
+    while true do
+        local offsetX = math.random(-1, .7) * 1
+        local offsetY = math.random(-1, .7) * 1
+        object.Position = originalPosition + UDim2.new(0, offsetX, 0, offsetY)
+        wait(0.025)
+    end
 end
 
--- Función para mover el ojo usando TweenService
 local function tweenEyePosition(eye, endPosition, duration)
-	local tweenInfo = TweenInfo.new(duration, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-	local tween = TweenService:Create(eye, tweenInfo, {Position = endPosition})
-	tween:Play()
-	return tween
+    local tweenInfo = TweenInfo.new(duration, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+    local tween = TweenService:Create(eye, tweenInfo, {Position = endPosition})
+    tween:Play()
+    return tween
 end
 
--- Función para animar el movimiento de los ojos
 local function animateEyeMovement(centerEye, leftEye, rightEye, direction)
-	if direction == "right" then
-		tweenEyePosition(centerEye, UDim2.new(0.8, 0, 0.5, 0), 0.5)
-		tweenEyePosition(leftEye, UDim2.new(0.7, 0, 0.5, 0), 0.5)
-		tweenEyePosition(rightEye, UDim2.new(0.9, 0, 0.5, 0), 0.5)
-	elseif direction == "left" then
-		tweenEyePosition(centerEye, UDim2.new(0.2, 0, 0.5, 0), 0.5)
-		tweenEyePosition(leftEye, UDim2.new(0.1, 0, 0.5, 0), 0.5)
-		tweenEyePosition(rightEye, UDim2.new(0.3, 0, 0.5, 0), 0.5)
-	else
-		tweenEyePosition(centerEye, UDim2.new(0.5, 0, 0.5, 0), 0.5)
-		tweenEyePosition(leftEye, UDim2.new(0.4, 0, 0.5, 0), 0.5)
-		tweenEyePosition(rightEye, UDim2.new(0.6, 0, 0.5, 0), 0.5)
-	end
+    if direction == "right" then
+        tweenEyePosition(centerEye, UDim2.new(0.8, 0, 0.5, 0), 0.5)
+        tweenEyePosition(leftEye, UDim2.new(0.7, 0, 0.5, 0), 0.5)
+        tweenEyePosition(rightEye, UDim2.new(0.9, 0, 0.5, 0), 0.5)
+    elseif direction == "left" then
+        tweenEyePosition(centerEye, UDim2.new(0.2, 0, 0.5, 0), 0.5)
+        tweenEyePosition(leftEye, UDim2.new(0.1, 0, 0.5, 0), 0.5)
+        tweenEyePosition(rightEye, UDim2.new(0.3, 0, 0.5, 0), 0.5)
+    else
+        tweenEyePosition(centerEye, UDim2.new(0.5, 0, 0.5, 0), 0.5)
+        tweenEyePosition(leftEye, UDim2.new(0.4, 0, 0.5, 0), 0.5)
+        tweenEyePosition(rightEye, UDim2.new(0.6, 0, 0.5, 0), 0.5)
+    end
 end
 
--- Función para animar ambos ojos
 local function animateBothEyes(Base1, Center1, Left1, Right1, Base2, Center2, Left2, Right2)
-	coroutine.wrap(function()
-		shakeObject(Base1)
-		shakeObject(Center1)
-		shakeObject(Left1)
-		shakeObject(Right1)
-	end)()
-	coroutine.wrap(function()
-		shakeObject(Base2)
-		shakeObject(Center2)
-		shakeObject(Left2)
-		shakeObject(Right2)
-	end)()
-	while true do
-		print("Iniciando ciclo de animación para ambos ojos")
-		animateEyeMovement(Center1, Left1, Right1, "right")
-		animateEyeMovement(Center2, Left2, Right2, "right")
-		wait(1)
-		animateEyeMovement(Center1, Left1, Right1, "center")
-		animateEyeMovement(Center2, Left2, Right2, "center")
-		wait(1)
-		animateEyeMovement(Center1, Left1, Right1, "left")
-		animateEyeMovement(Center2, Left2, Right2, "left")
-		wait(1)
-		animateEyeMovement(Center1, Left1, Right1, "center")
-		animateEyeMovement(Center2, Left2, Right2, "center")
-		wait(1)
-		print("Ciclo de animación completado para ambos ojos")
-	end
+    coroutine.wrap(function()
+        shakeObject(Base1)
+        shakeObject(Center1)
+        shakeObject(Left1)
+        shakeObject(Right1)
+    end)()
+    coroutine.wrap(function()
+        shakeObject(Base2)
+        shakeObject(Center2)
+        shakeObject(Left2)
+        shakeObject(Right2)
+    end)()
+    while true do
+        print("Iniciando ciclo de animación para ambos ojos")
+        animateEyeMovement(Center1, Left1, Right1, "right")
+        animateEyeMovement(Center2, Left2, Right2, "right")
+        wait(1)
+        animateEyeMovement(Center1, Left1, Right1, "center")
+        animateEyeMovement(Center2, Left2, Right2, "center")
+        wait(1)
+        animateEyeMovement(Center1, Left1, Right1, "left")
+        animateEyeMovement(Center2, Left2, Right2, "left")
+        wait(1)
+        animateEyeMovement(Center1, Left1, Right1, "center")
+        animateEyeMovement(Center2, Left2, Right2, "center")
+        wait(1)
+        print("Ciclo de animación completado para ambos ojos")
+    end
 end
 
--- Iniciar animación de los ojos si existen
-local Eyes = handle:FindFirstChild("Crescendo"):FindFirstChild("Eyes")
+-- Buscar y animar los ojos
+local Eyes = sword:FindFirstChild("Handle"):FindFirstChild("Crescendo"):FindFirstChild("Eyes")
 if Eyes then
-	local Eye_Normal1 = Eyes:FindFirstChild("Eye_Normal")
-	local Eye_Normal2 = Eyes:FindFirstChild("Eye_Normal2")
-	if Eye_Normal1 and Eye_Normal2 then
-		local Base1, Center1, Left1, Right1 = findEyeParts(Eye_Normal1)
-		local Base2, Center2, Left2, Right2 = findEyeParts(Eye_Normal2)
-		print("Iniciando animación sincronizada de los ojos y sus bases")
-		animateBothEyes(Base1, Center1, Left1, Right1, Base2, Center2, Left2, Right2)
-	end
+    local Eye_Normal1 = Eyes:FindFirstChild("Eye_Normal")
+    local Eye_Normal2 = Eyes:FindFirstChild("Eye_Normal2")
+    if Eye_Normal1 and Eye_Normal2 then
+        local Base1, Center1, Left1, Right1 = findEyeParts(Eye_Normal1)
+        local Base2, Center2, Left2, Right2 = findEyeParts(Eye_Normal2)
+        print("Iniciando animación sincronizada de los ojos y sus bases")
+        animateBothEyes(Base1, Center1, Left1, Right1, Base2, Center2, Left2, Right2)
+    else
+        warn("No se encontraron Eye_Normal1 o Eye_Normal2 en Eyes.")
+    end
+else
+    warn("No se encontró el objeto 'Eyes' en la espada.")
 end
 
 RunService.Heartbeat:Connect(function()
