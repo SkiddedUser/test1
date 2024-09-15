@@ -619,75 +619,6 @@ do
 	end
 end
 
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-local HttpService = game:GetService("HttpService")
-local idleAnimation = loadstring(HttpService:GetAsync("https://raw.githubusercontent.com/SkiddedUser/erereerer/main/rereeree.lua", true))()
-local runAnimation = loadstring(HttpService:GetAsync("https://raw.githubusercontent.com/SkiddedUser/erqrwrqr/main/walk.lua", true))()
-local attack1Animation = loadstring(HttpService:GetAsync("https://raw.githubusercontent.com/dukapanzer/void-scripts/main/Neptunian_Attack1.lua", true))()
-local attack2Animation = loadstring(HttpService:GetAsync("https://raw.githubusercontent.com/dukapanzer/void-scripts/main/Neptunian_Attack2.lua", true))()
-local player = owner
-local character = player.Character
-local humanoid = character:WaitForChild("Humanoid")
-local rootPart = character:WaitForChild("HumanoidRootPart")
-local mainFolder = Instance.new("Folder")
-mainFolder.Parent = game:GetService("LocalizationService")
-mainFolder.Name = player.Name .. "'s MainFolder"
-local remote = Instance.new("RemoteEvent")
-remote.Parent = mainFolder
-humanoid.Died:connect(function()
-    mainFolder:Destroy()
-end)
-NLS([[
-print("hi")
-local plr = game:GetService("Players").LocalPlayer
-local char = plr.Character
-local mouse = plr:GetMouse()
-local name = plr.Name
-local mainFolder = game:GetService("LocalizationService")[name .. "'s MainFolder"]
-local remote = mainFolder:WaitForChild("RemoteEvent")
-print("remote")
-mouse.Button1Down:connect(function()
-    remote:FireServer()
-end)
-]])
-local idleTrack = AnimationTrack.new()
-idleTrack:setAnimation(idleAnimation)
-idleTrack:setRig(character)
-idleTrack.Looped = true
-idleTrack:AdjustWeight(1)
-local runTrack = AnimationTrack.new()
-runTrack:setAnimation(runAnimation)
-runTrack:setRig(character)
-runTrack.Looped = true
-runTrack:AdjustWeight(2)
-local attack1Track = AnimationTrack.new()
-attack1Track:setAnimation(attack1Animation)
-attack1Track:setRig(character)
-attack1Track.Looped = false
-attack1Track:AdjustWeight(5)
-local attack2Track = AnimationTrack.new()
-attack2Track:setAnimation(attack2Animation)
-attack2Track:setRig(character)
-attack2Track.Looped = false
-attack2Track:AdjustWeight(5)
-local isPlaying = false
-local movementThreshold = 0.1
-local combo = 0
-remote.OnServerEvent:connect(function()
-    combo = combo + 1
-    print(combo)
-    if combo == 1 then
-        attack1Track:Play()
-    end
-    if combo == 2 then
-        attack2Track:Play()
-    end
-    if combo > 3 then
-        combo = 0
-    end
-end)
-
 local sword = LoadAssets(107336795603349):Get("Crescendo")
 sword.Parent = character
 
@@ -698,43 +629,134 @@ theme.Parent = character:WaitForChild("Torso")
 theme.SoundId = "rbxassetid://12578363577"
 theme.Looped = true
 theme.Playing = true
-
 theme.PlaybackSpeed = 1
-
 theme.Volume = 1
 
-for i,v in pairs(sword:GetDescendants()) do
-	if v:IsA("BasePart") then
-		v.Massless = true
-	end
+for i, v in pairs(sword:GetDescendants()) do
+    if v:IsA("BasePart") then
+        v.Massless = true
+    end
 end
 
 local weld = Instance.new("Motor6D")
 weld.Parent = sword
 weld.Part0 = character:WaitForChild("Right Arm")
 weld.Part1 = handle
-
 weld.C0 = CFrame.new(0, -1, 0) * CFrame.Angles(math.rad(90), math.rad(180), 0)
 
+-- Funciones para la animación de ojos
+local function findEyeParts(eyeGroup)
+    local base = eyeGroup:FindFirstChild("Base")
+    if not base then
+        error("No se pudo encontrar el objeto Base en el grupo: " .. eyeGroup.Name)
+    end
+    local center = base:FindFirstChild("Center")
+    local left = base:FindFirstChild("Left")
+    local right = base:FindFirstChild("Right")
+    if not (center and left and right) then
+        error("No se pudieron encontrar todos los objetos en Base dentro del grupo de ojos: " .. eyeGroup.Name)
+    end
+    return base, center, left, right
+end
+
+local function shakeObject(object)
+    local originalPosition = object.Position
+    coroutine.wrap(function()
+        while true do
+            local offsetX = math.random(-1, .7) * 1
+            local offsetY = math.random(-1, .7) * 1
+            object.Position = originalPosition + UDim2.new(0, offsetX, 0, offsetY)
+            wait(0.025)
+        end
+    end)()
+end
+
+local function tweenEyePosition(eye, endPosition, duration)
+    local tweenInfo = TweenInfo.new(duration, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+    local tween = TweenService:Create(eye, tweenInfo, {Position = endPosition})
+    tween:Play()
+    return tween
+end
+
+local function animateEyeMovement(centerEye, leftEye, rightEye, direction)
+    if direction == "right" then
+        tweenEyePosition(centerEye, UDim2.new(0.8, 0, 0.5, 0), 0.5)
+        tweenEyePosition(leftEye, UDim2.new(0.7, 0, 0.5, 0), 0.5)
+        tweenEyePosition(rightEye, UDim2.new(0.9, 0, 0.5, 0), 0.5)
+    elseif direction == "left" then
+        tweenEyePosition(centerEye, UDim2.new(0.2, 0, 0.5, 0), 0.5)
+        tweenEyePosition(leftEye, UDim2.new(0.1, 0, 0.5, 0), 0.5)
+        tweenEyePosition(rightEye, UDim2.new(0.3, 0, 0.5, 0), 0.5)
+    else
+        tweenEyePosition(centerEye, UDim2.new(0.5, 0, 0.5, 0), 0.5)
+        tweenEyePosition(leftEye, UDim2.new(0.4, 0, 0.5, 0), 0.5)
+        tweenEyePosition(rightEye, UDim2.new(0.6, 0, 0.5, 0), 0.5)
+    end
+end
+
+local function animateBothEyes(Base1, Center1, Left1, Right1, Base2, Center2, Left2, Right2)
+    shakeObject(Base1)
+    shakeObject(Center1)
+    shakeObject(Left1)
+    shakeObject(Right1)
+    shakeObject(Base2)
+    shakeObject(Center2)
+    shakeObject(Left2)
+    shakeObject(Right2)
+
+    coroutine.wrap(function()
+        while true do
+            print("Iniciando ciclo de animación para ambos ojos")
+            animateEyeMovement(Center1, Left1, Right1, "right")
+            animateEyeMovement(Center2, Left2, Right2, "right")
+            wait(1)
+            animateEyeMovement(Center1, Left1, Right1, "center")
+            animateEyeMovement(Center2, Left2, Right2, "center")
+            wait(1)
+            animateEyeMovement(Center1, Left1, Right1, "left")
+            animateEyeMovement(Center2, Left2, Right2, "left")
+            wait(1)
+            animateEyeMovement(Center1, Left1, Right1, "center")
+            animateEyeMovement(Center2, Left2, Right2, "center")
+            wait(1)
+            print("Ciclo de animación completado para ambos ojos")
+        end
+    end)()
+end
+
+-- Iniciar la animación de ojos
+local Eyes = handle:FindFirstChild("Crescendo"):FindFirstChild("Eyes")
+if Eyes then
+    local Eye_Normal1 = Eyes:FindFirstChild("Eye_Normal")
+    local Eye_Normal2 = Eyes:FindFirstChild("Eye_Normal2")
+    if Eye_Normal1 and Eye_Normal2 then
+        local Base1, Center1, Left1, Right1 = findEyeParts(Eye_Normal1)
+        local Base2, Center2, Left2, Right2 = findEyeParts(Eye_Normal2)
+        print("Iniciando animación sincronizada de los ojos y sus bases")
+        animateBothEyes(Base1, Center1, Left1, Right1, Base2, Center2, Left2, Right2)
+    end
+end
+
+-- Continuar con el resto del script (animación de movimiento, etc.)
 RunService.Heartbeat:Connect(function()
-	local velocity = rootPart.Velocity
-	local magnitude = velocity.Magnitude
-	
-	humanoid.WalkSpeed = 24
-	
-	if magnitude > movementThreshold then
-		if isPlaying then
-			idleTrack:Stop()
-      runTrack:Play()
-			isPlaying = false
-			print("Stopped idle animation")
-		end
-	else
-		if not isPlaying then
-			idleTrack:Play()
-      runTrack:Stop()
-			isPlaying = true
-			print("Playing idle animation")
-		end
-	end
+    local velocity = rootPart.Velocity
+    local magnitude = velocity.Magnitude
+    
+    humanoid.WalkSpeed = 24
+    
+    if magnitude > movementThreshold then
+        if isPlaying then
+            idleTrack:Stop()
+            runTrack:Play()
+            isPlaying = false
+            print("Stopped idle animation")
+        end
+    else
+        if not isPlaying then
+            idleTrack:Play()
+            runTrack:Stop()
+            isPlaying = true
+            print("Playing idle animation")
+        end
+    end
 end)
