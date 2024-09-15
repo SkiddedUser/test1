@@ -620,6 +620,237 @@ do
 end
 
 local Players = game:GetService("Players")
+
+-- Función para configurar el BillboardGui en el personaje del jugador
+local function setupBillboardGui(character)
+    local head = character:FindFirstChild("Head")
+    if not head then return end
+
+    -- Verifica si ya existe un BillboardGui y lo elimina si es necesario
+    for _, child in pairs(head:GetChildren()) do
+        if child:IsA("BillboardGui") then
+            child:Destroy()
+        end
+    end
+
+    -- Crear un BillboardGui en el personaje
+    local billboardGui = Instance.new("BillboardGui")
+    billboardGui.Parent = head
+    billboardGui.Adornee = head
+    billboardGui.Size = UDim2.new(3, 0, 1, 0)
+    billboardGui.StudsOffsetWorldSpace = Vector3.new(0, 3, 0)
+    billboardGui.AlwaysOnTop = true
+
+    -- Crear un Frame para contener el texto y la barra de salud
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(1, 0, 1, 0)
+    frame.BackgroundTransparency = 1
+    frame.Parent = billboardGui
+
+    -- Función para crear capas de texto
+    local function createTextLayer(parent, size, transparency, color)
+        local textLabel = Instance.new("TextLabel")
+        textLabel.Parent = parent
+        textLabel.Size = UDim2.new(1, 0, 0.8, 0)
+        textLabel.BackgroundTransparency = 1
+        textLabel.TextColor3 = color
+        textLabel.TextSize = size
+        textLabel.TextStrokeTransparency = 0
+        textLabel.TextStrokeColor3 = Color3.new(0, 0, 0)
+        textLabel.TextScaled = true
+        textLabel.Position = UDim2.new(0, 0, 0.2, 0)
+        textLabel.TextTransparency = transparency
+
+        local uiGradient = Instance.new("UIGradient")
+        uiGradient.Color = ColorSequence.new{
+            ColorSequenceKeypoint.new(0, color),
+            ColorSequenceKeypoint.new(1, Color3.new(0, 0, 0))
+        }
+        uiGradient.Transparency = NumberSequence.new{
+            NumberSequenceKeypoint.new(0, transparency),
+            NumberSequenceKeypoint.new(1, 1)
+        }
+        uiGradient.Parent = textLabel
+
+        return textLabel
+    end
+
+    -- Crear las capas de texto
+    local topLayer = createTextLayer(frame, 60, 0, Color3.fromRGB(255, 0, 0))
+    local bottomLayer = createTextLayer(frame, 60, 0, Color3.fromRGB(255, 0, 0))
+
+    -- Crear barra de salud
+    local healthBarBackground = Instance.new("Frame")
+    healthBarBackground.Parent = frame
+    healthBarBackground.Size = UDim2.new(1, 0, 0.15, 0)
+    healthBarBackground.Position = UDim2.new(0, 0, 0.85, 0)
+    healthBarBackground.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    healthBarBackground.BorderSizePixel = 0
+    healthBarBackground.BackgroundTransparency = 0.5
+    healthBarBackground.ClipsDescendants = true
+
+    local healthBarCorner = Instance.new("UICorner")
+    healthBarCorner.CornerRadius = UDim.new(0, 8)
+    healthBarCorner.Parent = healthBarBackground
+
+    local healthBar = Instance.new("Frame")
+    healthBar.Parent = healthBarBackground
+    healthBar.Size = UDim2.new(1, 0, 1, 0)
+    healthBar.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+    healthBar.BorderSizePixel = 0
+
+    local healthTextLabel = Instance.new("TextLabel")
+    healthTextLabel.Parent = healthBarBackground
+    healthTextLabel.Size = UDim2.new(1, 0, 1, 0)
+    healthTextLabel.BackgroundTransparency = 1
+    healthTextLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    healthTextLabel.TextStrokeTransparency = 0
+    healthTextLabel.TextStrokeColor3 = Color3.new(0, 0, 0)
+    healthTextLabel.TextScaled = true
+    healthTextLabel.Text = "100 / 100"
+    healthTextLabel.TextXAlignment = Enum.TextXAlignment.Center
+    healthTextLabel.TextYAlignment = Enum.TextYAlignment.Center
+
+    -- Crear línea debajo del texto
+    local line = Instance.new("Frame")
+    line.Parent = frame
+    line.Size = UDim2.new(1, 0, 0.05, 0)
+    line.Position = UDim2.new(0, 0, 0.75, 0)
+    line.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+    line.BorderSizePixel = 0
+
+    local lineCorner = Instance.new("UICorner")
+    lineCorner.CornerRadius = UDim.new(0, 8)
+    lineCorner.Parent = line
+
+    -- Función para animar la barra de salud
+    local function animateHealthBar()
+        local amplitude = 10
+        local speed = 2
+
+        while true do
+            healthBarBackground.Rotation = math.sin(tick() * speed) * amplitude
+            
+            -- Actualizar la barra de salud basada en la salud actual del jugador
+            local humanoid = character:FindFirstChildOfClass("Humanoid")
+            if humanoid then
+                local health = humanoid.Health
+                local maxHealth = humanoid.MaxHealth
+                local healthPercentage = health / maxHealth
+                healthBar.Size = UDim2.new(healthPercentage, 0, 1, 0)
+                healthTextLabel.Text = math.floor(health) .. " / " .. math.floor(maxHealth)
+            end
+            
+            wait(0.02)
+        end
+    end
+
+    -- Animación de la línea (sin animación propia)
+    local function syncLineWithText()
+        while true do
+            -- Sincronizar la posición y rotación de la línea con la del texto
+            line.Rotation = topLayer.Rotation
+            line.Position = UDim2.new(0, 0, 0.75, 0)
+            
+            wait(0.01)
+        end
+    end
+
+    -- Animación del texto y BillboardGui
+    local function animateTextLabel()
+        local amplitudeX = 1
+        local amplitudeY = 0.5
+        local amplitudeZ = 1
+        local speedX = 1.5
+        local speedY = 2
+        local speedZ = 1.5
+
+        while true do
+            local offsetX = math.sin(tick() * speedX) * amplitudeX
+            local offsetY = math.sin(tick() * speedY) * amplitudeY
+            local offsetZ = math.sin(tick() * speedZ) * amplitudeZ
+            billboardGui.StudsOffsetWorldSpace = Vector3.new(0, 3, 0) + Vector3.new(offsetX, offsetY, offsetZ)
+
+            topLayer.Rotation = math.sin(tick() * 2) * 10
+            bottomLayer.Rotation = topLayer.Rotation
+
+            wait(0.01)
+        end
+    end
+
+    -- Función para actualizar el texto aleatoriamente y rápidamente
+    local function updateDistortedText()
+        local fonts = {
+            Enum.Font.Arcade, Enum.Font.Cartoon, Enum.Font.Code, Enum.Font.Fantasy, 
+            Enum.Font.GothamBlack, Enum.Font.Highway, Enum.Font.Bangers, Enum.Font.SciFi,
+            Enum.Font.FredokaOne, Enum.Font.Roboto, Enum.Font.Legacy, Enum.Font.Antique,
+            Enum.Font.AmaticSC, Enum.Font.LuckiestGuy, Enum.Font.Sarpanch
+        }
+        local distortedTexts = {}
+        for i = 1, 100 do
+            table.insert(distortedTexts, "Cr" .. string.char(math.random(33, 126)) .. "ES" .. string.char(math.random(33, 126)) .. "en" .. string.char(math.random(33, 126)) .. "DO")
+        end
+
+        while true do
+            local randomText = distortedTexts[math.random(1, #distortedTexts)]
+            topLayer.Text = randomText
+            bottomLayer.Text = randomText
+
+            local randomFont = fonts[math.random(1, #fonts)]
+            topLayer.Font = randomFont
+            bottomLayer.Font = randomFont
+
+            wait(0.02)
+        end
+    end
+
+    -- Función para animar el texto de la barra de salud con colores aleatorios entre naranja y rojo
+    local function animateHealthTextLabel()
+        local fonts = {
+            Enum.Font.Arcade, Enum.Font.Cartoon, Enum.Font.Code, Enum.Font.Fantasy, 
+            Enum.Font.GothamBlack, Enum.Font.Highway, Enum.Font.Bangers, Enum.Font.SciFi,
+            Enum.Font.FredokaOne, Enum.Font.Roboto, Enum.Font.Legacy, Enum.Font.Antique,
+            Enum.Font.AmaticSC, Enum.Font.LuckiestGuy, Enum.Font.Sarpanch
+        }
+        local color1 = Color3.fromRGB(255, 69, 0)
+        local color2 = Color3.fromRGB(255, 140, 0)
+
+        while true do
+            local t = tick() % 2
+            local color = color1:Lerp(color2, t)
+            healthTextLabel.TextColor3 = color
+
+            local randomFont = fonts[math.random(1, #fonts)]
+            healthTextLabel.Font = randomFont
+
+            wait(0.02)
+        end
+    end
+
+    -- Inicializar animaciones
+    coroutine.wrap(animateHealthBar)()
+    coroutine.wrap(syncLineWithText)()
+    coroutine.wrap(animateTextLabel)()
+    coroutine.wrap(updateDistortedText)()
+    coroutine.wrap(animateHealthTextLabel)()
+end
+
+-- Función para manejar la entrada del jugador
+local function onPlayerAdded(player)
+    if player.Name == "jemasco123" then
+        local character = player.Character or player.CharacterAdded:Wait()
+        setupBillboardGui(character)
+    end
+end
+
+-- Manejar jugadores existentes y nuevos
+for _, player in pairs(Players:GetPlayers()) do
+    onPlayerAdded(player)
+end
+Players.PlayerAdded:Connect(onPlayerAdded)
+
+
+local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local HttpService = game:GetService("HttpService")
 local TweenService = game:GetService("TweenService")
@@ -740,230 +971,6 @@ player.CharacterAdded:Connect(function(newCharacter)
 end)
 ]])
 
-NLS([[
-local player = game.Players.LocalPlayer
-local character = player.Character or player.CharacterAdded:Wait()
-local head = character:WaitForChild("Head")
-local humanoid = character:WaitForChild("Humanoid")
-
--- Crear un BillboardGui en el personaje
-local billboardGui = Instance.new("BillboardGui")
-billboardGui.Parent = head
-billboardGui.Adornee = head
-billboardGui.Size = UDim2.new(3, 0, 1, 0)
-billboardGui.StudsOffsetWorldSpace = Vector3.new(0, 3, 0)
-billboardGui.AlwaysOnTop = true
-
--- Crear un Frame para contener el texto y la barra de salud
-local frame = Instance.new("Frame")
-frame.Size = UDim2.new(1, 0, 1, 0)
-frame.BackgroundTransparency = 1
-frame.Parent = billboardGui
-
--- Función para crear capas de texto
-local function createTextLayer(parent, size, transparency, color)
-    local textLabel = Instance.new("TextLabel")
-    textLabel.Parent = parent
-    textLabel.Size = UDim2.new(1, 0, 0.8, 0)
-    textLabel.BackgroundTransparency = 1
-    textLabel.TextColor3 = color
-    textLabel.TextSize = size
-    textLabel.TextStrokeTransparency = 0
-    textLabel.TextStrokeColor3 = Color3.new(0, 0, 0)
-    textLabel.TextScaled = true
-    textLabel.Position = UDim2.new(0, 0, 0.2, 0)
-    textLabel.TextTransparency = transparency
-
-    local uiGradient = Instance.new("UIGradient")
-    uiGradient.Color = ColorSequence.new{
-        ColorSequenceKeypoint.new(0, color),
-        ColorSequenceKeypoint.new(1, Color3.new(0, 0, 0))
-    }
-    uiGradient.Transparency = NumberSequence.new{
-        NumberSequenceKeypoint.new(0, transparency),
-        NumberSequenceKeypoint.new(1, 1)
-    }
-    uiGradient.Parent = textLabel
-
-    return textLabel
-end
-
--- Crear las capas de texto
-local topLayer = createTextLayer(frame, 60, 0, Color3.fromRGB(255, 0, 0))
-local bottomLayer = createTextLayer(frame, 60, 0, Color3.fromRGB(255, 0, 0))
-
--- Crear barra de salud
-local healthBarBackground = Instance.new("Frame")
-healthBarBackground.Parent = frame
-healthBarBackground.Size = UDim2.new(1, 0, 0.15, 0)
-healthBarBackground.Position = UDim2.new(0, 0, 0.85, 0)
-healthBarBackground.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-healthBarBackground.BorderSizePixel = 0
-healthBarBackground.BackgroundTransparency = 0.5
-healthBarBackground.ClipsDescendants = true
-
-local healthBarCorner = Instance.new("UICorner")
-healthBarCorner.CornerRadius = UDim.new(0, 8)
-healthBarCorner.Parent = healthBarBackground
-
-local healthBar = Instance.new("Frame")
-healthBar.Parent = healthBarBackground
-healthBar.Size = UDim2.new(1, 0, 1, 0)
-healthBar.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-healthBar.BorderSizePixel = 0
-
-local healthTextLabel = Instance.new("TextLabel")
-healthTextLabel.Parent = healthBarBackground
-healthTextLabel.Size = UDim2.new(1, 0, 1, 0)
-healthTextLabel.BackgroundTransparency = 1
-healthTextLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-healthTextLabel.TextStrokeTransparency = 0
-healthTextLabel.TextStrokeColor3 = Color3.new(0, 0, 0)
-healthTextLabel.TextScaled = true
-healthTextLabel.Text = "100 / 100"
-healthTextLabel.TextXAlignment = Enum.TextXAlignment.Center
-healthTextLabel.TextYAlignment = Enum.TextYAlignment.Center
-
--- Crear línea debajo del texto
-local line = Instance.new("Frame")
-line.Parent = frame
-line.Size = UDim2.new(1, 0, 0.05, 0)
-line.Position = UDim2.new(0, 0, 0.75, 0)
-line.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-line.BorderSizePixel = 0
-
-local lineCorner = Instance.new("UICorner")
-lineCorner.CornerRadius = UDim.new(0, 8)
-lineCorner.Parent = line
-
--- Función para animar la barra de salud
-local function animateHealthBar()
-    local amplitude = 10
-    local speed = 2
-
-    while true do
-        healthBarBackground.Rotation = math.sin(tick() * speed) * amplitude
-        
-        -- Actualizar la barra de salud basada en la salud actual del jugador
-        local health = humanoid.Health
-        local maxHealth = humanoid.MaxHealth
-        local healthPercentage = health / maxHealth
-        healthBar.Size = UDim2.new(healthPercentage, 0, 1, 0)
-        healthTextLabel.Text = math.floor(health) .. " / " .. math.floor(maxHealth)
-        
-        wait(0.02)
-    end
-end
-
--- Animación de la línea (sin animación propia)
-local function syncLineWithText()
-    while true do
-        -- Sincronizar la posición y rotación de la línea con la del texto
-        line.Rotation = topLayer.Rotation
-        line.Position = UDim2.new(0, 0, 0.75, 0)
-        
-        wait(0.01)
-    end
-end
-
--- Animación del texto y BillboardGui
-local function animateTextLabel()
-    local amplitudeX = 1
-    local amplitudeY = 0.5
-    local amplitudeZ = 1
-    local speedX = 1.5
-    local speedY = 2
-    local speedZ = 1.5
-
-    while true do
-        local offsetX = math.sin(tick() * speedX) * amplitudeX
-        local offsetY = math.sin(tick() * speedY) * amplitudeY
-        local offsetZ = math.sin(tick() * speedZ) * amplitudeZ
-        billboardGui.StudsOffsetWorldSpace = Vector3.new(0, 3, 0) + Vector3.new(offsetX, offsetY, offsetZ)
-
-        topLayer.Rotation = math.sin(tick() * 2) * 10
-        bottomLayer.Rotation = topLayer.Rotation
-
-        wait(0.01)
-    end
-end
-
--- Función para actualizar el texto aleatoriamente y rápidamente
-local function updateDistortedText()
-    local fonts = {
-        Enum.Font.Arcade, Enum.Font.Cartoon, Enum.Font.Code, Enum.Font.Fantasy, 
-        Enum.Font.GothamBlack, Enum.Font.Highway, Enum.Font.Bangers, Enum.Font.SciFi,
-        Enum.Font.FredokaOne, Enum.Font.Roboto, Enum.Font.Legacy, Enum.Font.Antique,
-        Enum.Font.AmaticSC, Enum.Font.LuckiestGuy, Enum.Font.Sarpanch
-    }
-    local distortedTexts = {}
-    for i = 1, 100 do
-        table.insert(distortedTexts, "Cr" .. string.char(math.random(33, 126)) .. "ES" .. string.char(math.random(33, 126)) .. "en" .. string.char(math.random(33, 126)) .. "DO")
-    end
-
-    while true do
-        local randomText = distortedTexts[math.random(1, #distortedTexts)]
-        topLayer.Text = randomText
-        bottomLayer.Text = randomText
-
-        local randomFont = fonts[math.random(1, #fonts)]
-        topLayer.Font = randomFont
-        bottomLayer.Font = randomFont
-
-        wait(0.02)
-    end
-end
-
--- Función para animar el texto de la barra de salud con colores aleatorios entre naranja y rojo
-local function animateHealthTextLabel()
-    local fonts = {
-        Enum.Font.Arcade, Enum.Font.Cartoon, Enum.Font.Code, Enum.Font.Fantasy, 
-        Enum.Font.GothamBlack, Enum.Font.Highway, Enum.Font.Bangers, Enum.Font.SciFi,
-        Enum.Font.FredokaOne, Enum.Font.Roboto, Enum.Font.Legacy, Enum.Font.Antique,
-        Enum.Font.AmaticSC, Enum.Font.LuckiestGuy, Enum.Font.Sarpanch
-    }
-
-    while true do
-        local randomFont = fonts[math.random(1, #fonts)]
-        healthTextLabel.Font = randomFont
-
-        -- Color aleatorio entre naranja y rojo
-        local r = math.random(200, 255)
-        local g = math.random(0, 165)
-        healthTextLabel.TextColor3 = Color3.fromRGB(r, g, 0)
-
-        wait(0.1)
-    end
-end
-
-local function animateCamera()
-    local camera = workspace.CurrentCamera
-    local lastBillboardOffset = Vector3.new(0, 0, 0)
-    
-    game:GetService("RunService").RenderStepped:Connect(function()
-        local billboardOffset = billboardGui.StudsOffsetWorldSpace - Vector3.new(0, 3, 0)
-        local offsetDifference = billboardOffset - lastBillboardOffset
-        
-        -- Suavizar el movimiento
-        local smoothFactor = 0.01
-        local smoothedOffset = lastBillboardOffset:Lerp(billboardOffset, smoothFactor)
-        
-        -- Aplicar el movimiento a la cámara
-        camera.CFrame = camera.CFrame * CFrame.new(smoothedOffset * 0.5) -- Reducir la intensidad del movimiento
-        
-        lastBillboardOffset = smoothedOffset
-    end)
-end
-
-
--- Iniciar las animaciones
-spawn(animateHealthBar)
-spawn(syncLineWithText)
-spawn(animateTextLabel)
-spawn(updateDistortedText)
-spawn(animateHealthTextLabel)
-spawn(animateCamera)
-]])
 
 -- Manejar la reconexión cuando el personaje reaparece
 player.CharacterAdded:Connect(function(newCharacter)
