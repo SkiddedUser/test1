@@ -631,9 +631,20 @@ local attack1Animation = loadstring(HttpService:GetAsync("https://raw.githubuser
 local attack2Animation = loadstring(HttpService:GetAsync("https://raw.githubusercontent.com/dukapanzer/void-scripts/main/Neptunian_Attack2.lua", true))()
 
 local player = owner
-local character = player.Character
+local character = player.Character or player.CharacterAdded:Wait()
 local humanoid = character:WaitForChild("Humanoid")
 local rootPart = character:WaitForChild("HumanoidRootPart")
+
+-- Función para limpiar el MainFolder
+local function cleanupMainFolder()
+    local existingFolder = game:GetService("LocalizationService"):FindFirstChild(player.Name .. "'s MainFolder")
+    if existingFolder then
+        existingFolder:Destroy()
+    end
+end
+
+-- Limpiar cualquier MainFolder existente antes de crear uno nuevo
+cleanupMainFolder()
 
 local mainFolder = Instance.new("Folder")
 mainFolder.Parent = game:GetService("LocalizationService")
@@ -642,24 +653,53 @@ mainFolder.Name = player.Name .. "'s MainFolder"
 local remote = Instance.new("RemoteEvent")
 remote.Parent = mainFolder
 
-humanoid.Died:connect(function()
-	mainFolder:Destroy()
+-- Conectar la función de limpieza al evento de muerte del personaje
+local function onCharacterDied()
+    cleanupMainFolder()
+end
+
+humanoid.Died:Connect(onCharacterDied)
+
+-- Reconectar la función de limpieza cuando el personaje reaparece
+player.CharacterAdded:Connect(function(newCharacter)
+    character = newCharacter
+    humanoid = character:WaitForChild("Humanoid")
+    rootPart = character:WaitForChild("HumanoidRootPart")
+    humanoid.Died:Connect(onCharacterDied)
 end)
 
 NLS([[
-print("hi")
-local plr = game:GetService("Players").LocalPlayer
-local char = plr.Character
+local Players = game:GetService("Players")
+local plr = Players.LocalPlayer
+local char = plr.Character or plr.CharacterAdded:Wait()
 local mouse = plr:GetMouse()
 
 local name = plr.Name
 
-local mainFolder = game:GetService("LocalizationService")[name .. "'s MainFolder"]
-local remote = mainFolder:WaitForChild("RemoteEvent")
-print("remote")
+local function setupRemote()
+    local mainFolder = game:GetService("LocalizationService"):WaitForChild(name .. "'s MainFolder", 10)
+    if not mainFolder then
+        warn("MainFolder not found")
+        return
+    end
+    
+    local remote = mainFolder:WaitForChild("RemoteEvent", 5)
+    if not remote then
+        warn("RemoteEvent not found")
+        return
+    end
+    
+    mouse.Button1Down:Connect(function()
+        remote:FireServer()
+    end)
+end
 
-mouse.Button1Down:connect(function()
-	remote:FireServer()
+setupRemote()
+
+-- Reconectar cuando el personaje reaparece
+plr.CharacterAdded:Connect(function(newChar)
+    char = newChar
+    setupRemote()
 end)
 ]])
 
@@ -696,21 +736,21 @@ local movementThreshold = 0.1
 
 local combo = 0
 
-remote.OnServerEvent:connect(function()
-	combo = combo + 1
-	print(combo)
+remote.OnServerEvent:Connect(function()
+    combo = combo + 1
+    print(combo)
 
-	if combo == 1 then
-		attack1Track:Play()
-	end
+    if combo == 1 then
+        attack1Track:Play()
+    end
 
-	if combo == 2 then
-		attack2Track:Play()
-	end
+    if combo == 2 then
+        attack2Track:Play()
+    end
 
-	if combo > 3 then
-		combo = 0
-	end
+    if combo > 3 then
+        combo = 0
+    end
 end)
 
 local sword = LoadAssets(107336795603349):Get("Crescendo")
