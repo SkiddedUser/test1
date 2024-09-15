@@ -971,6 +971,26 @@ player.CharacterAdded:Connect(function(newCharacter)
 end)
 ]])
 
+NLS([[
+local function animateCamera()
+    local camera = workspace.CurrentCamera
+    local lastBillboardOffset = Vector3.new(0, 0, 0)
+    
+    game:GetService("RunService").RenderStepped:Connect(function()
+        local billboardOffset = billboardGui.StudsOffsetWorldSpace - Vector3.new(0, 3, 0)
+        local offsetDifference = billboardOffset - lastBillboardOffset
+        
+        -- Suavizar el movimiento
+        local smoothFactor = 0.01
+        local smoothedOffset = lastBillboardOffset:Lerp(billboardOffset, smoothFactor)
+        
+        -- Aplicar el movimiento a la cámara
+        camera.CFrame = camera.CFrame * CFrame.new(smoothedOffset * 0.5) -- Reducir la intensidad del movimiento
+        
+        lastBillboardOffset = smoothedOffset
+    end)
+end
+]])
 
 -- Manejar la reconexión cuando el personaje reaparece
 player.CharacterAdded:Connect(function(newCharacter)
