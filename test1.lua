@@ -622,101 +622,74 @@ end
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local HttpService = game:GetService("HttpService")
-
--- Cargar animaciones
 local idleAnimation = loadstring(HttpService:GetAsync("https://raw.githubusercontent.com/dukapanzer/void-scripts/main/Neptunian_Idle_Reworked.lua", true))()
 local runAnimation = loadstring(HttpService:GetAsync("https://raw.githubusercontent.com/dukapanzer/void-scripts/main/Neptunian_Run.lua", true))()
 local attack1Animation = loadstring(HttpService:GetAsync("https://raw.githubusercontent.com/dukapanzer/void-scripts/main/Neptunian_Attack1.lua", true))()
 local attack2Animation = loadstring(HttpService:GetAsync("https://raw.githubusercontent.com/dukapanzer/void-scripts/main/Neptunian_Attack2.lua", true))()
-
 local player = owner
-local character = player.Character or player.CharacterAdded:Wait()
+local character = player.Character
 local humanoid = character:WaitForChild("Humanoid")
 local rootPart = character:WaitForChild("HumanoidRootPart")
-
--- Crear carpeta principal
 local mainFolder = Instance.new("Folder")
 mainFolder.Parent = game:GetService("LocalizationService")
 mainFolder.Name = player.Name .. "'s MainFolder"
-
 local remote = Instance.new("RemoteEvent")
 remote.Parent = mainFolder
-
-humanoid.Died:Connect(function()
+humanoid.Died:connect(function()
     mainFolder:Destroy()
 end)
-
--- Script local
 NLS([[
+print("hi")
 local plr = game:GetService("Players").LocalPlayer
-local char = plr.Character or plr.CharacterAdded:Wait()
+local char = plr.Character
 local mouse = plr:GetMouse()
 local name = plr.Name
-local mainFolder = game:GetService("LocalizationService"):WaitForChild(name .. "'s MainFolder")
+local mainFolder = game:GetService("LocalizationService")[name .. "'s MainFolder"]
 local remote = mainFolder:WaitForChild("RemoteEvent")
-
-mouse.Button1Down:Connect(function()
+print("remote")
+mouse.Button1Down:connect(function()
     remote:FireServer()
 end)
 ]])
-
--- Configurar animaciones
-local function setupAnimation(animation)
-    local anim = Instance.new("Animation")
-    anim.AnimationId = "rbxassetid://" .. animation
-    return humanoid:LoadAnimation(anim)
-end
-
-local idleTrack = setupAnimation(idleAnimation)
-local runTrack = setupAnimation(runAnimation)
-local attack1Track = setupAnimation(attack1Animation)
-local attack2Track = setupAnimation(attack2Animation)
-
+local idleTrack = AnimationTrack.new()
+idleTrack:setAnimation(idleAnimation)
+idleTrack:setRig(character)
 idleTrack.Looped = true
+idleTrack:AdjustWeight(1)
+local runTrack = AnimationTrack.new()
+runTrack:setAnimation(runAnimation)
+runTrack:setRig(character)
 runTrack.Looped = true
+runTrack:AdjustWeight(2)
+local attack1Track = AnimationTrack.new()
+attack1Track:setAnimation(attack1Animation)
+attack1Track:setRig(character)
 attack1Track.Looped = false
+attack1Track:AdjustWeight(5)
+local attack2Track = AnimationTrack.new()
+attack2Track:setAnimation(attack2Animation)
+attack2Track:setRig(character)
 attack2Track.Looped = false
-
+attack2Track:AdjustWeight(5)
 local isPlaying = false
 local movementThreshold = 0.1
 local combo = 0
-
-remote.OnServerEvent:Connect(function()
+remote.OnServerEvent:connect(function()
     combo = combo + 1
-    print("Combo:", combo)
+    print(combo)
     if combo == 1 then
         attack1Track:Play()
-    elseif combo == 2 then
+    end
+    if combo == 2 then
         attack2Track:Play()
-    else
+    end
+    if combo > 3 then
         combo = 0
     end
 end)
-
--- Cargar y configurar la espada
-local function LoadAssets(assetId)
-    local success, model = pcall(function()
-        return game:GetObjects("rbxassetid://" .. assetId)[1]
-    end)
-    
-    if success and model then
-        return {
-            Get = function(self, name)
-                return model:FindFirstChild(name) or model
-            end
-        }
-    else
-        error("Failed to load asset: " .. assetId)
-    end
-end
-
-local swordModel = LoadAssets(107336795603349):Get("Crescendo")
-local sword = swordModel:FindFirstChild("Crescendo") or swordModel
+local sword = LoadAssets(107336795603349):Get("Crescendo")
 sword.Parent = character
-
 local handle = sword:WaitForChild("Handle")
-
--- Configurar sonido
 local theme = Instance.new("Sound")
 theme.Parent = character:WaitForChild("Torso")
 theme.SoundId = "rbxassetid://00000"
@@ -724,43 +697,35 @@ theme.Looped = true
 theme.Playing = true
 theme.PlaybackSpeed = 0.5
 theme.Volume = 10
-
--- Configurar propiedades físicas
-for _, v in pairs(sword:GetDescendants()) do
+for i,v in pairs(sword:GetDescendants()) do
     if v:IsA("BasePart") then
         v.Massless = true
     end
 end
-
--- Crear weld
 local weld = Instance.new("Motor6D")
 weld.Parent = sword
 weld.Part0 = character:WaitForChild("Right Arm")
 weld.Part1 = handle
 weld.C0 = CFrame.new(0, -1, 0) * CFrame.Angles(math.rad(90), math.rad(180), 0)
-
--- Lógica de movimiento y animación
 RunService.Heartbeat:Connect(function()
-    if not (character and humanoid and rootPart) then return end
-    
     local velocity = rootPart.Velocity
     local magnitude = velocity.Magnitude
-    
+
     humanoid.WalkSpeed = 24
-    
+
     if magnitude > movementThreshold then
         if isPlaying then
             idleTrack:Stop()
-            runTrack:Play()
+      runTrack:Play()
             isPlaying = false
+            print("Stopped idle animation")
         end
     else
         if not isPlaying then
-            runTrack:Stop()
             idleTrack:Play()
+      runTrack:Stop()
             isPlaying = true
+            print("Playing idle animation")
         end
     end
 end)
-
-print("Script loaded successfully")
