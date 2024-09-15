@@ -759,12 +759,18 @@ local function findEyeParts(eyeGroup)
 	return base, center, left, right
 end
 
--- Buscar los ojos en la espada
-local Eye_Normal1 = sword:FindFirstChild("Eye_Normal")
-local Eye_Normal2 = sword:FindFirstChild("Eye_Normal2")
+-- Buscar el grupo de ojos en la espada
+local eyesFolder = sword:FindFirstChild("Eyes")
+if not eyesFolder then
+	error("No se encontró el folder Eyes en la espada.")
+end
+
+-- Buscar los grupos de ojos
+local Eye_Normal1 = eyesFolder:FindFirstChild("Eye_Normal1")
+local Eye_Normal2 = eyesFolder:FindFirstChild("Eye_Normal2")
 
 if not (Eye_Normal1 and Eye_Normal2) then
-	error("No se encontraron los grupos Eye_Normal1 o Eye_Normal2 en la espada")
+	error("No se encontraron los grupos Eye_Normal1 o Eye_Normal2 en el folder Eyes")
 end
 
 -- Buscar las partes de los ojos
@@ -841,7 +847,6 @@ end
 
 -- Ejecutar la animación de los ojos
 animateBothEyes(Base1, Center1, Left1, Right1, Base2, Center2, Left2, Right2)
-
 RunService.Heartbeat:Connect(function()
 	local velocity = rootPart.Velocity
 	local magnitude = velocity.Magnitude
