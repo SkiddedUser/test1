@@ -754,6 +754,7 @@ if not (center and left and right) then
 end
 return base, center, left, right
 end
+end
 local function shakeObject(object)
 	local originalPosition = object.Position
 	while true do
