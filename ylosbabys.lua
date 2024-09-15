@@ -741,10 +741,14 @@ weld.Part0 = character:WaitForChild("Right Arm")
 weld.Part1 = handle
 weld.C0 = CFrame.new(0, -1, 0) * CFrame.Angles(math.rad(90), math.rad(180), 0)
 
--- Función para encontrar las partes del ojo
-local Eyes = script.Parent
+local Eyes = sword:FindFirstChild("Handle"):FindFirstChild("Crescendo"):FindFirstChild("Eyes")
 local Eye_Normal1 = Eyes:FindFirstChild("Eye_Normal1")
 local Eye_Normal2 = Eyes:FindFirstChild("Eye_Normal2")
+
+-- Validar que los grupos de ojos existen
+if not Eye_Normal1 or not Eye_Normal2 then
+	error("No se encontraron los grupos Eye_Normal1 o Eye_Normal2 en el objeto Eyes.")
+end
 
 -- Función para encontrar las partes de los ojos
 local function findEyeParts(eyeGroup)
@@ -765,10 +769,25 @@ local function findEyeParts(eyeGroup)
 end
 
 -- Buscar las partes de los ojos en Eye_Normal1 y Eye_Normal2
-local Base1, Center1, Left1, Right1 = findEyeParts(Eye_Normal1)
-local Base2, Center2, Left2, Right2 = findEyeParts(Eye_Normal2)
+local Base1, Center1, Left1, Right1
+local Base2, Center2, Left2, Right2
 
--- Función original para agitar un objeto (Base o partes de los ojos)
+-- Manejar posibles errores en la búsqueda de partes
+local success1, result1 = pcall(function()
+	Base1, Center1, Left1, Right1 = findEyeParts(Eye_Normal1)
+end)
+if not success1 then
+	error("Error al encontrar partes en Eye_Normal1: " .. result1)
+end
+
+local success2, result2 = pcall(function()
+	Base2, Center2, Left2, Right2 = findEyeParts(Eye_Normal2)
+end)
+if not success2 then
+	error("Error al encontrar partes en Eye_Normal2: " .. result2)
+end
+
+-- Función para agitar un objeto (Base o partes de los ojos)
 local function shakeObject(object)
 	local originalPosition = object.Position
 	while true do
@@ -854,7 +873,6 @@ end
 -- Iniciar la animación completa
 print("Iniciando animación sincronizada de los ojos y sus bases")
 animateBothEyes(Base1, Center1, Left1, Right1, Base2, Center2, Left2, Right2)
-
 RunService.Heartbeat:Connect(function()
 	local velocity = rootPart.Velocity
 	local magnitude = velocity.Magnitude
