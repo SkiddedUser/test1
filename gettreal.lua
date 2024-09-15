@@ -723,34 +723,13 @@ end)
 ]])
 
 local function onAnimationRequested(animationName)
-    if animationName == "attack1" then
-        attack1Track:Play()
-    elseif animationName == "attack2" then
-        attack2Track:Play()
-    end
+	if animationName == "attack1" then
+		attack1Track:Play()
+	elseif animationName == "attack2" then
+		attack2Track:Play()
+	end
 end
 
-local function setupAnimationListener()
-    local event = ReplicatedStorage:WaitForChild("PlayAnimation", 10)
-    if event then
-        event.Event:Connect(onAnimationRequested)
-    end
-end
-
-setupAnimationListener()
-
-player.CharacterAdded:Connect(function(newCharacter)
-    character = newCharacter
-    humanoid = character:WaitForChild("Humanoid")
-    rootPart = character:WaitForChild("HumanoidRootPart")
-    
-    idleTrack:setRig(character)
-    runTrack:setRig(character)
-    attack1Track:setRig(character)
-    attack2Track:setRig(character)
-    
-    setupAnimationListener()
-end)
 local sword = LoadAssets(107336795603349):Get("Crescendo")
 sword.Parent = character
 
