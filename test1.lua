@@ -687,9 +687,34 @@ remote.OnServerEvent:connect(function()
         combo = 0
     end
 end)
-local sword = LoadAssets(107336795603349):Get("Crescendo")
+local function LoadAssets(assetId)
+    local success, model = pcall(function()
+        return game:GetObjects("rbxassetid://" .. assetId)[1]
+    end)
+    
+    if success and model then
+        return model
+    else
+        error("Failed to load asset: " .. assetId)
+    end
+end
+
+local crescendoModel = LoadAssets(107336795603349)
+print("Crescendo model loaded:", crescendoModel)
+
+-- Asumiendo que "Crescendo" es el nombre del modelo principal
+local sword = crescendoModel:FindFirstChild("Crescendo")
+if not sword then
+    error("Couldn't find 'Crescendo' in the loaded model")
+end
+
 sword.Parent = character
+print("Sword parented to character")
+
 local handle = sword:WaitForChild("Handle")
+print("Handle found:", handle)
+
+-- Configurar sonido (sin cambios)
 local theme = Instance.new("Sound")
 theme.Parent = character:WaitForChild("Torso")
 theme.SoundId = "rbxassetid://00000"
@@ -697,16 +722,27 @@ theme.Looped = true
 theme.Playing = true
 theme.PlaybackSpeed = 0.5
 theme.Volume = 10
-for i,v in pairs(sword:GetDescendants()) do
+
+-- Configurar propiedades físicas
+for _, v in pairs(sword:GetDescendants()) do
     if v:IsA("BasePart") then
         v.Massless = true
     end
 end
-local weld = Instance.new("Motor6D")
-weld.Parent = sword
-weld.Part0 = character:WaitForChild("Right Arm")
-weld.Part1 = handle
-weld.C0 = CFrame.new(0, -1, 0) * CFrame.Angles(math.rad(90), math.rad(180), 0)
+
+-- Crear weld (ajustado para usar el WeldConstraint existente)
+local weldConstraint = sword:FindFirstChild("WeldConstraint")
+if weldConstraint then
+    weldConstraint.Part0 = character:WaitForChild("Right Arm")
+    weldConstraint.Part1 = handle
+    print("Using existing WeldConstraint")
+else
+    local weld = Instance.new("WeldConstraint")
+    weld.Parent = sword
+    weld.Part0 = character:WaitForChild("Right Arm")
+    weld.Part1 = handle
+    print("Created new WeldConstraint")
+end
 RunService.Heartbeat:Connect(function()
     local velocity = rootPart.Velocity
     local magnitude = velocity.Magnitude
