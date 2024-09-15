@@ -757,7 +757,6 @@ else
 	warn("No se encontró la carpeta Eyes en la espada")
 end
 
--- Animación de movimiento
 RunService.Heartbeat:Connect(function()
 	local velocity = rootPart.Velocity
 	local magnitude = velocity.Magnitude
@@ -769,12 +768,14 @@ RunService.Heartbeat:Connect(function()
 			idleTrack:Stop()
 			runTrack:Play()
 			isPlaying = false
+			print("Stopped idle animation")
 		end
 	else
 		if not isPlaying then
 			idleTrack:Play()
 			runTrack:Stop()
 			isPlaying = true
+			print("Playing idle animation")
 		end
 	end
 end)
