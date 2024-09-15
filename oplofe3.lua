@@ -741,6 +741,31 @@ weld.Part0 = character:WaitForChild("Right Arm")
 weld.Part1 = handle
 weld.C0 = CFrame.new(0, -1, 0) * CFrame.Angles(math.rad(90), math.rad(180), 0)
 
+RunService.Heartbeat:Connect(function()
+	local velocity = rootPart.Velocity
+	local magnitude = velocity.Magnitude
+
+	humanoid.WalkSpeed = 24
+
+	if magnitude > movementThreshold then
+		if isPlaying then
+			idleTrack:Stop()
+			runTrack:Play()
+			isPlaying = false
+			print("Stopped idle animation")
+		end
+	else
+		if not isPlaying then
+			idleTrack:Play()
+			runTrack:Stop()
+			isPlaying = true
+			print("Playing idle animation")
+		end
+	end
+end)
+
+print("Script de la espada Crescendo cargado y ejecutándose")
+
 local Eyes = sword:FindFirstChild("Handle"):FindFirstChild("Crescendo"):FindFirstChild("Eyes")
 local Eye_Normal1 = Eyes:FindFirstChild("Eye_Normal")
 local Eye_Normal2 = Eyes:FindFirstChild("Eye_Normal2")
@@ -873,27 +898,3 @@ end
 -- Iniciar la animación completa
 print("Iniciando animación sincronizada de los ojos y sus bases")
 animateBothEyes(Base1, Center1, Left1, Right1, Base2, Center2, Left2, Right2)
-RunService.Heartbeat:Connect(function()
-	local velocity = rootPart.Velocity
-	local magnitude = velocity.Magnitude
-
-	humanoid.WalkSpeed = 24
-
-	if magnitude > movementThreshold then
-		if isPlaying then
-			idleTrack:Stop()
-			runTrack:Play()
-			isPlaying = false
-			print("Stopped idle animation")
-		end
-	else
-		if not isPlaying then
-			idleTrack:Play()
-			runTrack:Stop()
-			isPlaying = true
-			print("Playing idle animation")
-		end
-	end
-end)
-
-print("Script de la espada Crescendo cargado y ejecutándose")
