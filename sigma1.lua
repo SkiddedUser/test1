@@ -741,20 +741,22 @@ weld.Part0 = character:WaitForChild("Right Arm")
 weld.Part1 = handle
 weld.C0 = CFrame.new(0, -1, 0) * CFrame.Angles(math.rad(90), math.rad(180), 0)
 
--- Funciones para la animación de ojos
-local base = eyeGroup:FindFirstChild("Base")
-if not base then
-	error("No se pudo encontrar el objeto Base en el grupo: " .. eyeGroup.Name)
+-- Función para encontrar las partes del ojo
+local function findEyeParts(eyeGroup)
+	local base = eyeGroup:FindFirstChild("Base")
+	if not base then
+		error("No se pudo encontrar el objeto Base en el grupo: " .. eyeGroup.Name)
+	end
+	local center = base:FindFirstChild("Center")
+	local left = base:FindFirstChild("Left")
+	local right = base:FindFirstChild("Right")
+	if not (center and left and right) then
+		error("No se pudieron encontrar todos los objetos en Base dentro del grupo de ojos: " .. eyeGroup.Name)
+	end
+	return base, center, left, right
 end
-local center = base:FindFirstChild("Center")
-local left = base:FindFirstChild("Left")
-local right = base:FindFirstChild("Right")
-if not (center and left and right) then
-	error("No se pudieron encontrar todos los objetos en Base dentro del grupo de ojos: " .. eyeGroup.Name)
-end
-return base, center, left, right
-end
-end
+
+-- Función para agitar los objetos (animación de vibración)
 local function shakeObject(object)
 	local originalPosition = object.Position
 	while true do
@@ -764,12 +766,16 @@ local function shakeObject(object)
 		wait(0.025)
 	end
 end
+
+-- Función para mover el ojo usando TweenService
 local function tweenEyePosition(eye, endPosition, duration)
 	local tweenInfo = TweenInfo.new(duration, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 	local tween = TweenService:Create(eye, tweenInfo, {Position = endPosition})
 	tween:Play()
 	return tween
 end
+
+-- Función para animar el movimiento de los ojos
 local function animateEyeMovement(centerEye, leftEye, rightEye, direction)
 	if direction == "right" then
 		tweenEyePosition(centerEye, UDim2.new(0.8, 0, 0.5, 0), 0.5)
@@ -785,6 +791,8 @@ local function animateEyeMovement(centerEye, leftEye, rightEye, direction)
 		tweenEyePosition(rightEye, UDim2.new(0.6, 0, 0.5, 0), 0.5)
 	end
 end
+
+-- Función para animar ambos ojos
 local function animateBothEyes(Base1, Center1, Left1, Right1, Base2, Center2, Left2, Right2)
 	coroutine.wrap(function()
 		shakeObject(Base1)
@@ -815,6 +823,8 @@ local function animateBothEyes(Base1, Center1, Left1, Right1, Base2, Center2, Le
 		print("Ciclo de animación completado para ambos ojos")
 	end
 end
+
+-- Iniciar animación de los ojos si existen
 local Eyes = handle:FindFirstChild("Crescendo"):FindFirstChild("Eyes")
 if Eyes then
 	local Eye_Normal1 = Eyes:FindFirstChild("Eye_Normal")
@@ -825,9 +835,6 @@ if Eyes then
 		print("Iniciando animación sincronizada de los ojos y sus bases")
 		animateBothEyes(Base1, Center1, Left1, Right1, Base2, Center2, Left2, Right2)
 	end
-end
-end
-end
 end
 
 RunService.Heartbeat:Connect(function()
