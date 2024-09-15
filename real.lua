@@ -635,146 +635,122 @@ local character = player.Character or player.CharacterAdded:Wait()
 local humanoid = character:WaitForChild("Humanoid")
 local rootPart = character:WaitForChild("HumanoidRootPart")
 
--- Función para limpiar el MainFolder existente
-local function cleanupMainFolder()
-    local existingFolder = game:GetService("LocalizationService"):FindFirstChild(player.Name .. "'s MainFolder")
-    if existingFolder then
-        existingFolder:Destroy()
-    end
-end
-
--- Limpiar cualquier MainFolder existente antes de crear uno nuevo
-cleanupMainFolder()
-
-local mainFolder = Instance.new("Folder")
-mainFolder.Parent = game:GetService("LocalizationService")
-mainFolder.Name = player.Name .. "'s MainFolder"
-
-local remote = Instance.new("RemoteEvent")
-remote.Parent = mainFolder
-
--- Conectar la función de limpieza al evento de muerte del personaje
-humanoid.Died:Connect(cleanupMainFolder)
-
-NLS([[
-local Players = game:GetService("Players")
-local plr = Players.LocalPlayer
-local mouse = plr:GetMouse()
-
-local name = plr.Name
-
-local function setupRemote()
-    local mainFolder = game:GetService("LocalizationService"):WaitForChild(name .. "'s MainFolder", 10)
-    if not mainFolder then
-        warn("MainFolder not found")
-        return
-    end
-    
-    local remote = mainFolder:WaitForChild("RemoteEvent", 5)
-    if not remote then
-        warn("RemoteEvent not found")
-        return
-    end
-    
-    mouse.Button1Down:Connect(function()
-        remote:FireServer()
-    end)
-    
-    print("Remote setup complete")
-end
-
-setupRemote()
-
--- No es necesario reconectar cuando el personaje reaparece,
--- ya que el script principal se encargará de crear un nuevo MainFolder
-]])
-
 local idleTrack = AnimationTrack.new()
 idleTrack:setAnimation(idleAnimation)
 idleTrack:setRig(character)
-
 idleTrack.Looped = true
 idleTrack:AdjustWeight(1)
 
 local runTrack = AnimationTrack.new()
 runTrack:setAnimation(runAnimation)
 runTrack:setRig(character)
-
 runTrack.Looped = true
 runTrack:AdjustWeight(2)
 
 local attack1Track = AnimationTrack.new()
 attack1Track:setAnimation(attack1Animation)
 attack1Track:setRig(character)
-
 attack1Track.Looped = false
 attack1Track:AdjustWeight(5)
 
 local attack2Track = AnimationTrack.new()
 attack2Track:setAnimation(attack2Animation)
 attack2Track:setRig(character)
-
 attack2Track.Looped = false
 attack2Track:AdjustWeight(5)
 
 local isPlaying = false
 local movementThreshold = 0.1
 
+NLS([[
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local player = Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoid = character:WaitForChild("Humanoid")
+local mouse = player:GetMouse()
+
 local combo = 0
+local lastClickTime = 0
+local clickCooldown = 0.1 -- Cooldown entre clics para evitar spam
 
-local function setupAttacks()
-    remote.OnServerEvent:Connect(function()
-        combo = combo + 1
-        print("Attack triggered, combo:", combo)
-
-        if combo == 1 then
-            attack1Track:Play()
-        elseif combo == 2 then
-            attack2Track:Play()
-        end
-
-        if combo >= 2 then
-            combo = 0
-        end
-    end)
-    
-    print("Attacks setup complete")
+local function playAnimation(animationName)
+    local event = Instance.new("BindableEvent")
+    event.Name = "PlayAnimation"
+    event.Parent = ReplicatedStorage
+    event:Fire(animationName)
+    event:Destroy()
 end
 
-setupAttacks()
+mouse.Button1Down:Connect(function()
+    local currentTime = tick()
+    if currentTime - lastClickTime < clickCooldown then
+        return
+    end
+    lastClickTime = currentTime
 
--- Esta función se ejecutará cada vez que se cree un nuevo personaje
-local function onCharacterAdded(newCharacter)
+    combo = combo + 1
+    print("Attack triggered, combo:", combo)
+
+    if combo == 1 then
+        playAnimation("attack1")
+    elseif combo == 2 then
+        playAnimation("attack2")
+    end
+
+    if combo >= 2 then
+        combo = 0
+    end
+end)
+
+-- Resetear el combo si no se hace clic durante un tiempo
+local comboResetTime = 2 -- segundos
+local function resetCombo()
+    while true do
+        wait(comboResetTime)
+        if tick() - lastClickTime >= comboResetTime then
+            combo = 0
+        end
+    end
+end
+coroutine.wrap(resetCombo)()
+
+player.CharacterAdded:Connect(function(newCharacter)
+    character = newCharacter
+    humanoid = character:WaitForChild("Humanoid")
+end)
+]])
+
+local function onAnimationRequested(animationName)
+    if animationName == "attack1" then
+        attack1Track:Play()
+    elseif animationName == "attack2" then
+        attack2Track:Play()
+    end
+end
+
+local function setupAnimationListener()
+    local event = ReplicatedStorage:WaitForChild("PlayAnimation", 10)
+    if event then
+        event.Event:Connect(onAnimationRequested)
+    end
+end
+
+setupAnimationListener()
+
+player.CharacterAdded:Connect(function(newCharacter)
     character = newCharacter
     humanoid = character:WaitForChild("Humanoid")
     rootPart = character:WaitForChild("HumanoidRootPart")
     
-    -- Limpiar y recrear el MainFolder
-    cleanupMainFolder()
-    
-    mainFolder = Instance.new("Folder")
-    mainFolder.Parent = game:GetService("LocalizationService")
-    mainFolder.Name = player.Name .. "'s MainFolder"
-
-    remote = Instance.new("RemoteEvent")
-    remote.Parent = mainFolder
-    
-    -- Configurar las animaciones para el nuevo personaje
     idleTrack:setRig(character)
     runTrack:setRig(character)
     attack1Track:setRig(character)
     attack2Track:setRig(character)
     
-    -- Configurar los ataques nuevamente
-    setupAttacks()
-    
-    -- Conectar la función de limpieza al evento de muerte del nuevo personaje
-    humanoid.Died:Connect(cleanupMainFolder)
-end
-
--- Conectar la función onCharacterAdded al evento CharacterAdded del jugador
-player.CharacterAdded:Connect(onCharacterAdded)
-
+    setupAnimationListener()
+end)
 local sword = LoadAssets(107336795603349):Get("Crescendo")
 sword.Parent = character
 
