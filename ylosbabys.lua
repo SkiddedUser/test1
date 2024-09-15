@@ -742,7 +742,7 @@ weld.Part1 = handle
 weld.C0 = CFrame.new(0, -1, 0) * CFrame.Angles(math.rad(90), math.rad(180), 0)
 
 local Eyes = sword:FindFirstChild("Handle"):FindFirstChild("Crescendo"):FindFirstChild("Eyes")
-local Eye_Normal1 = Eyes:FindFirstChild("Eye_Normal1")
+local Eye_Normal1 = Eyes:FindFirstChild("Eye_Normal")
 local Eye_Normal2 = Eyes:FindFirstChild("Eye_Normal2")
 
 -- Validar que los grupos de ojos existen
