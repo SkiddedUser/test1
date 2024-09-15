@@ -623,10 +623,95 @@ local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local HttpService = game:GetService("HttpService")
 local TweenService = game:GetService("TweenService")
+
+local idleAnimation = loadstring(HttpService:GetAsync("https://raw.githubusercontent.com/dukapanzer/void-scripts/main/Neptunian_Idle_Reworked.lua", true))()
+local runAnimation = loadstring(HttpService:GetAsync("https://raw.githubusercontent.com/dukapanzer/void-scripts/main/Neptunian_Run.lua", true))()
+
+local attack1Animation = loadstring(HttpService:GetAsync("https://raw.githubusercontent.com/dukapanzer/void-scripts/main/Neptunian_Attack1.lua", true))()
+local attack2Animation = loadstring(HttpService:GetAsync("https://raw.githubusercontent.com/dukapanzer/void-scripts/main/Neptunian_Attack2.lua", true))()
+
 local player = owner
 local character = player.Character
 local humanoid = character:WaitForChild("Humanoid")
 local rootPart = character:WaitForChild("HumanoidRootPart")
+
+local mainFolder = Instance.new("Folder")
+mainFolder.Parent = game:GetService("LocalizationService")
+mainFolder.Name = player.Name .. "'s MainFolder"
+
+local remote = Instance.new("RemoteEvent")
+remote.Parent = mainFolder
+
+humanoid.Died:connect(function()
+	mainFolder:Destroy()
+end)
+
+NLS([[
+print("hi")
+local plr = game:GetService("Players").LocalPlayer
+local char = plr.Character
+local mouse = plr:GetMouse()
+
+local name = plr.Name
+
+local mainFolder = game:GetService("LocalizationService")[name .. "'s MainFolder"]
+local remote = mainFolder:WaitForChild("RemoteEvent")
+print("remote")
+
+mouse.Button1Down:connect(function()
+	remote:FireServer()
+end)
+]])
+
+local idleTrack = AnimationTrack.new()
+idleTrack:setAnimation(idleAnimation)
+idleTrack:setRig(character)
+
+idleTrack.Looped = true
+idleTrack:AdjustWeight(1)
+
+local runTrack = AnimationTrack.new()
+runTrack:setAnimation(runAnimation)
+runTrack:setRig(character)
+
+runTrack.Looped = true
+runTrack:AdjustWeight(2)
+
+local attack1Track = AnimationTrack.new()
+attack1Track:setAnimation(attack1Animation)
+attack1Track:setRig(character)
+
+attack1Track.Looped = false
+attack1Track:AdjustWeight(5)
+
+local attack2Track = AnimationTrack.new()
+attack2Track:setAnimation(attack2Animation)
+attack2Track:setRig(character)
+
+attack2Track.Looped = false
+attack2Track:AdjustWeight(5)
+
+local isPlaying = false
+local movementThreshold = 0.1
+
+local combo = 0
+
+remote.OnServerEvent:connect(function()
+	combo = combo + 1
+	print(combo)
+
+	if combo == 1 then
+		attack1Track:Play()
+	end
+
+	if combo == 2 then
+		attack2Track:Play()
+	end
+
+	if combo > 3 then
+		combo = 0
+	end
+end)
 
 local sword = LoadAssets(107336795603349):Get("Crescendo")
 sword.Parent = character
