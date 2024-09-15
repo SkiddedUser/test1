@@ -619,6 +619,9 @@ do
 	end
 end
 
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local HttpService = game:GetService("HttpService")
 local player = owner
 local character = player.Character
 local humanoid = character:WaitForChild("Humanoid")
