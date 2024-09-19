@@ -858,8 +858,8 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local idleAnimation = loadstring(HttpService:GetAsync("https://raw.githubusercontent.com/SkiddedUser/qweqeqweasfaagh/refs/heads/main/ksdjgh.lua", true))()
 local runAnimation = loadstring(HttpService:GetAsync("https://raw.githubusercontent.com/SkiddedUser/erqrwrqr/main/walk.lua", true))()
-local attack1Animation = loadstring(HttpService:GetAsync("https://raw.githubusercontent.com/dukapanzer/void-scripts/main/Neptunian_Attack1.lua", true))()
-local attack2Animation = loadstring(HttpService:GetAsync("https://raw.githubusercontent.com/dukapanzer/void-scripts/main/Neptunian_Attack2.lua", true))()
+local attack1Animation = loadstring(HttpService:GetAsync("https://raw.githubusercontent.com/SkiddedUser/attack1/refs/heads/main/attack1.lua", true))()
+local attack2Animation = loadstring(HttpService:GetAsync("https://raw.githubusercontent.com/SkiddedUser/attack2/refs/heads/main/attack2.lua", true))()
 
 local player = owner
 local character = player.Character or player.CharacterAdded:Wait()
