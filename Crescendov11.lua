@@ -1146,6 +1146,28 @@ player.CharacterAdded:Connect(function(newCharacter)
     attack2Track:setRig(character)
 end)
 
+RunService.Heartbeat:Connect(function()
+	local velocity = rootPart.Velocity
+	local magnitude = velocity.Magnitude
+
+	humanoid.WalkSpeed = 24
+
+	if magnitude > movementThreshold then
+		if isPlaying then
+			idleTrack:Stop()
+			runTrack:Play()
+			isPlaying = false
+			print("Stopped idle animation")
+		end
+	else
+		if not isPlaying then
+			idleTrack:Play()
+			runTrack:Stop()
+			isPlaying = true
+			print("Playing idle animation")
+		end
+	end
+end)
 print("Script loaded successfully")
 
 local sword = LoadAssets(107336795603349):Get("Crescendo")
@@ -1195,31 +1217,6 @@ end
 
 -- Conectar la función de animación al Heartbeat
 local animationConnection = RunService.Heartbeat:Connect(animateSword)
-
-RunService.Heartbeat:Connect(function()
-	local velocity = rootPart.Velocity
-	local magnitude = velocity.Magnitude
-
-	humanoid.WalkSpeed = 24
-
-	if magnitude > movementThreshold then
-		if isPlaying then
-			idleTrack:Stop()
-			runTrack:Play()
-			isPlaying = false
-			print("Stopped idle animation")
-		end
-	else
-		if not isPlaying then
-			idleTrack:Play()
-			runTrack:Stop()
-			isPlaying = true
-			print("Playing idle animation")
-		end
-	end
-end)
-
-
 local Eyes = sword:FindFirstChild("Handle"):FindFirstChild("Crescendo"):FindFirstChild("Eyes")
 local Eye_Normal1 = Eyes:FindFirstChild("Eye_Normal")
 local Eye_Normal2 = Eyes:FindFirstChild("Eye_Normal2")
