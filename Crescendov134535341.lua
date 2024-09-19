@@ -623,229 +623,229 @@ local Players = game:GetService("Players")
 
 -- Función para configurar el BillboardGui en el personaje del jugador
 local function setupBillboardGui(character)
-    local head = character:FindFirstChild("Head")
-    if not head then return end
+	local head = character:FindFirstChild("Head")
+	if not head then return end
 
-    -- Verifica si ya existe un BillboardGui y lo elimina si es necesario
-    for _, child in pairs(head:GetChildren()) do
-        if child:IsA("BillboardGui") then
-            child:Destroy()
-        end
-    end
+	-- Verifica si ya existe un BillboardGui y lo elimina si es necesario
+	for _, child in pairs(head:GetChildren()) do
+		if child:IsA("BillboardGui") then
+			child:Destroy()
+		end
+	end
 
-    -- Crear un BillboardGui en el personaje
-    local billboardGui = Instance.new("BillboardGui")
-    billboardGui.Parent = head
-    billboardGui.Adornee = head
-    billboardGui.Size = UDim2.new(3, 0, 1, 0)
-    billboardGui.StudsOffsetWorldSpace = Vector3.new(0, 3, 0)
-    billboardGui.AlwaysOnTop = true
+	-- Crear un BillboardGui en el personaje
+	local billboardGui = Instance.new("BillboardGui")
+	billboardGui.Parent = head
+	billboardGui.Adornee = head
+	billboardGui.Size = UDim2.new(3, 0, 1, 0)
+	billboardGui.StudsOffsetWorldSpace = Vector3.new(0, 3, 0)
+	billboardGui.AlwaysOnTop = true
 
-    -- Crear un Frame para contener el texto y la barra de salud
-    local frame = Instance.new("Frame")
-    frame.Size = UDim2.new(1, 0, 1, 0)
-    frame.BackgroundTransparency = 1
-    frame.Parent = billboardGui
+	-- Crear un Frame para contener el texto y la barra de salud
+	local frame = Instance.new("Frame")
+	frame.Size = UDim2.new(1, 0, 1, 0)
+	frame.BackgroundTransparency = 1
+	frame.Parent = billboardGui
 
-    -- Función para crear capas de texto
-    local function createTextLayer(parent, size, transparency, color)
-        local textLabel = Instance.new("TextLabel")
-        textLabel.Parent = parent
-        textLabel.Size = UDim2.new(1, 0, 0.8, 0)
-        textLabel.BackgroundTransparency = 1
-        textLabel.TextColor3 = color
-        textLabel.TextSize = size
-        textLabel.TextStrokeTransparency = 0
-        textLabel.TextStrokeColor3 = Color3.new(0, 0, 0)
-        textLabel.TextScaled = true
-        textLabel.Position = UDim2.new(0, 0, 0.2, 0)
-        textLabel.TextTransparency = transparency
+	-- Función para crear capas de texto
+	local function createTextLayer(parent, size, transparency, color)
+		local textLabel = Instance.new("TextLabel")
+		textLabel.Parent = parent
+		textLabel.Size = UDim2.new(1, 0, 0.8, 0)
+		textLabel.BackgroundTransparency = 1
+		textLabel.TextColor3 = color
+		textLabel.TextSize = size
+		textLabel.TextStrokeTransparency = 0
+		textLabel.TextStrokeColor3 = Color3.new(0, 0, 0)
+		textLabel.TextScaled = true
+		textLabel.Position = UDim2.new(0, 0, 0.2, 0)
+		textLabel.TextTransparency = transparency
 
-        local uiGradient = Instance.new("UIGradient")
-        uiGradient.Color = ColorSequence.new{
-            ColorSequenceKeypoint.new(0, color),
-            ColorSequenceKeypoint.new(1, Color3.new(0, 0, 0))
-        }
-        uiGradient.Transparency = NumberSequence.new{
-            NumberSequenceKeypoint.new(0, transparency),
-            NumberSequenceKeypoint.new(1, 1)
-        }
-        uiGradient.Parent = textLabel
+		local uiGradient = Instance.new("UIGradient")
+		uiGradient.Color = ColorSequence.new{
+			ColorSequenceKeypoint.new(0, color),
+			ColorSequenceKeypoint.new(1, Color3.new(0, 0, 0))
+		}
+		uiGradient.Transparency = NumberSequence.new{
+			NumberSequenceKeypoint.new(0, transparency),
+			NumberSequenceKeypoint.new(1, 1)
+		}
+		uiGradient.Parent = textLabel
 
-        return textLabel
-    end
+		return textLabel
+	end
 
-    -- Crear las capas de texto
-    local topLayer = createTextLayer(frame, 60, 0, Color3.fromRGB(255, 0, 0))
-    local bottomLayer = createTextLayer(frame, 60, 0, Color3.fromRGB(255, 0, 0))
+	-- Crear las capas de texto
+	local topLayer = createTextLayer(frame, 60, 0, Color3.fromRGB(255, 0, 0))
+	local bottomLayer = createTextLayer(frame, 60, 0, Color3.fromRGB(255, 0, 0))
 
-    -- Crear barra de salud
-    local healthBarBackground = Instance.new("Frame")
-    healthBarBackground.Parent = frame
-    healthBarBackground.Size = UDim2.new(1, 0, 0.15, 0)
-    healthBarBackground.Position = UDim2.new(0, 0, 0.85, 0)
-    healthBarBackground.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-    healthBarBackground.BorderSizePixel = 0
-    healthBarBackground.BackgroundTransparency = 0.5
-    healthBarBackground.ClipsDescendants = true
+	-- Crear barra de salud
+	local healthBarBackground = Instance.new("Frame")
+	healthBarBackground.Parent = frame
+	healthBarBackground.Size = UDim2.new(1, 0, 0.15, 0)
+	healthBarBackground.Position = UDim2.new(0, 0, 0.85, 0)
+	healthBarBackground.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+	healthBarBackground.BorderSizePixel = 0
+	healthBarBackground.BackgroundTransparency = 0.5
+	healthBarBackground.ClipsDescendants = true
 
-    local healthBarCorner = Instance.new("UICorner")
-    healthBarCorner.CornerRadius = UDim.new(0, 8)
-    healthBarCorner.Parent = healthBarBackground
+	local healthBarCorner = Instance.new("UICorner")
+	healthBarCorner.CornerRadius = UDim.new(0, 8)
+	healthBarCorner.Parent = healthBarBackground
 
-    local healthBar = Instance.new("Frame")
-    healthBar.Parent = healthBarBackground
-    healthBar.Size = UDim2.new(1, 0, 1, 0)
-    healthBar.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-    healthBar.BorderSizePixel = 0
+	local healthBar = Instance.new("Frame")
+	healthBar.Parent = healthBarBackground
+	healthBar.Size = UDim2.new(1, 0, 1, 0)
+	healthBar.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+	healthBar.BorderSizePixel = 0
 
-    local healthTextLabel = Instance.new("TextLabel")
-    healthTextLabel.Parent = healthBarBackground
-    healthTextLabel.Size = UDim2.new(1, 0, 1, 0)
-    healthTextLabel.BackgroundTransparency = 1
-    healthTextLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-    healthTextLabel.TextStrokeTransparency = 0
-    healthTextLabel.TextStrokeColor3 = Color3.new(0, 0, 0)
-    healthTextLabel.TextScaled = true
-    healthTextLabel.Text = "100 / 100"
-    healthTextLabel.TextXAlignment = Enum.TextXAlignment.Center
-    healthTextLabel.TextYAlignment = Enum.TextYAlignment.Center
+	local healthTextLabel = Instance.new("TextLabel")
+	healthTextLabel.Parent = healthBarBackground
+	healthTextLabel.Size = UDim2.new(1, 0, 1, 0)
+	healthTextLabel.BackgroundTransparency = 1
+	healthTextLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+	healthTextLabel.TextStrokeTransparency = 0
+	healthTextLabel.TextStrokeColor3 = Color3.new(0, 0, 0)
+	healthTextLabel.TextScaled = true
+	healthTextLabel.Text = "100 / 100"
+	healthTextLabel.TextXAlignment = Enum.TextXAlignment.Center
+	healthTextLabel.TextYAlignment = Enum.TextYAlignment.Center
 
-    -- Crear línea debajo del texto
-    local line = Instance.new("Frame")
-    line.Parent = frame
-    line.Size = UDim2.new(1, 0, 0.05, 0)
-    line.Position = UDim2.new(0, 0, 0.75, 0)
-    line.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-    line.BorderSizePixel = 0
+	-- Crear línea debajo del texto
+	local line = Instance.new("Frame")
+	line.Parent = frame
+	line.Size = UDim2.new(1, 0, 0.05, 0)
+	line.Position = UDim2.new(0, 0, 0.75, 0)
+	line.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+	line.BorderSizePixel = 0
 
-    local lineCorner = Instance.new("UICorner")
-    lineCorner.CornerRadius = UDim.new(0, 8)
-    lineCorner.Parent = line
+	local lineCorner = Instance.new("UICorner")
+	lineCorner.CornerRadius = UDim.new(0, 8)
+	lineCorner.Parent = line
 
-    -- Función para animar la barra de salud
-    local function animateHealthBar()
-        local amplitude = 10
-        local speed = 2
+	-- Función para animar la barra de salud
+	local function animateHealthBar()
+		local amplitude = 10
+		local speed = 2
 
-        while true do
-            healthBarBackground.Rotation = math.sin(tick() * speed) * amplitude
-            
-            -- Actualizar la barra de salud basada en la salud actual del jugador
-            local humanoid = character:FindFirstChildOfClass("Humanoid")
-            if humanoid then
-                local health = humanoid.Health
-                local maxHealth = humanoid.MaxHealth
-                local healthPercentage = health / maxHealth
-                healthBar.Size = UDim2.new(healthPercentage, 0, 1, 0)
-                healthTextLabel.Text = math.floor(health) .. " / " .. math.floor(maxHealth)
-            end
-            
-            wait(0.02)
-        end
-    end
+		while true do
+			healthBarBackground.Rotation = math.sin(tick() * speed) * amplitude
 
-    -- Animación de la línea (sin animación propia)
-    local function syncLineWithText()
-        while true do
-            -- Sincronizar la posición y rotación de la línea con la del texto
-            line.Rotation = topLayer.Rotation
-            line.Position = UDim2.new(0, 0, 0.75, 0)
-            
-            wait(0.01)
-        end
-    end
+			-- Actualizar la barra de salud basada en la salud actual del jugador
+			local humanoid = character:FindFirstChildOfClass("Humanoid")
+			if humanoid then
+				local health = humanoid.Health
+				local maxHealth = humanoid.MaxHealth
+				local healthPercentage = health / maxHealth
+				healthBar.Size = UDim2.new(healthPercentage, 0, 1, 0)
+				healthTextLabel.Text = math.floor(health) .. " / " .. math.floor(maxHealth)
+			end
 
-    -- Animación del texto y BillboardGui
-    local function animateTextLabel()
-        local amplitudeX = 1
-        local amplitudeY = 0.5
-        local amplitudeZ = 1
-        local speedX = 1.5
-        local speedY = 2
-        local speedZ = 1.5
+			wait(0.02)
+		end
+	end
 
-        while true do
-            local offsetX = math.sin(tick() * speedX) * amplitudeX
-            local offsetY = math.sin(tick() * speedY) * amplitudeY
-            local offsetZ = math.sin(tick() * speedZ) * amplitudeZ
-            billboardGui.StudsOffsetWorldSpace = Vector3.new(0, 3, 0) + Vector3.new(offsetX, offsetY, offsetZ)
+	-- Animación de la línea (sin animación propia)
+	local function syncLineWithText()
+		while true do
+			-- Sincronizar la posición y rotación de la línea con la del texto
+			line.Rotation = topLayer.Rotation
+			line.Position = UDim2.new(0, 0, 0.75, 0)
 
-            topLayer.Rotation = math.sin(tick() * 2) * 10
-            bottomLayer.Rotation = topLayer.Rotation
+			wait(0.01)
+		end
+	end
 
-            wait(0.01)
-        end
-    end
+	-- Animación del texto y BillboardGui
+	local function animateTextLabel()
+		local amplitudeX = 1
+		local amplitudeY = 0.5
+		local amplitudeZ = 1
+		local speedX = 1.5
+		local speedY = 2
+		local speedZ = 1.5
 
-    -- Función para actualizar el texto aleatoriamente y rápidamente
-    local function updateDistortedText()
-        local fonts = {
-            Enum.Font.Arcade, Enum.Font.Cartoon, Enum.Font.Code, Enum.Font.Fantasy, 
-            Enum.Font.GothamBlack, Enum.Font.Highway, Enum.Font.Bangers, Enum.Font.SciFi,
-            Enum.Font.FredokaOne, Enum.Font.Roboto, Enum.Font.Legacy, Enum.Font.Antique,
-            Enum.Font.AmaticSC, Enum.Font.LuckiestGuy, Enum.Font.Sarpanch
-        }
-        local distortedTexts = {}
-        for i = 1, 100 do
-            table.insert(distortedTexts, "Cr" .. string.char(math.random(33, 126)) .. "ES" .. string.char(math.random(33, 126)) .. "en" .. string.char(math.random(33, 126)) .. "DO")
-        end
+		while true do
+			local offsetX = math.sin(tick() * speedX) * amplitudeX
+			local offsetY = math.sin(tick() * speedY) * amplitudeY
+			local offsetZ = math.sin(tick() * speedZ) * amplitudeZ
+			billboardGui.StudsOffsetWorldSpace = Vector3.new(0, 3, 0) + Vector3.new(offsetX, offsetY, offsetZ)
 
-        while true do
-            local randomText = distortedTexts[math.random(1, #distortedTexts)]
-            topLayer.Text = randomText
-            bottomLayer.Text = randomText
+			topLayer.Rotation = math.sin(tick() * 2) * 10
+			bottomLayer.Rotation = topLayer.Rotation
 
-            local randomFont = fonts[math.random(1, #fonts)]
-            topLayer.Font = randomFont
-            bottomLayer.Font = randomFont
+			wait(0.01)
+		end
+	end
 
-            wait(0.02)
-        end
-    end
+	-- Función para actualizar el texto aleatoriamente y rápidamente
+	local function updateDistortedText()
+		local fonts = {
+			Enum.Font.Arcade, Enum.Font.Cartoon, Enum.Font.Code, Enum.Font.Fantasy, 
+			Enum.Font.GothamBlack, Enum.Font.Highway, Enum.Font.Bangers, Enum.Font.SciFi,
+			Enum.Font.FredokaOne, Enum.Font.Roboto, Enum.Font.Legacy, Enum.Font.Antique,
+			Enum.Font.AmaticSC, Enum.Font.LuckiestGuy, Enum.Font.Sarpanch
+		}
+		local distortedTexts = {}
+		for i = 1, 100 do
+			table.insert(distortedTexts, "Cr" .. string.char(math.random(33, 126)) .. "ES" .. string.char(math.random(33, 126)) .. "en" .. string.char(math.random(33, 126)) .. "DO")
+		end
 
-    -- Función para animar el texto de la barra de salud con colores aleatorios entre naranja y rojo
-    local function animateHealthTextLabel()
-        local fonts = {
-            Enum.Font.Arcade, Enum.Font.Cartoon, Enum.Font.Code, Enum.Font.Fantasy, 
-            Enum.Font.GothamBlack, Enum.Font.Highway, Enum.Font.Bangers, Enum.Font.SciFi,
-            Enum.Font.FredokaOne, Enum.Font.Roboto, Enum.Font.Legacy, Enum.Font.Antique,
-            Enum.Font.AmaticSC, Enum.Font.LuckiestGuy, Enum.Font.Sarpanch
-        }
-        local color1 = Color3.fromRGB(255, 69, 0)
-        local color2 = Color3.fromRGB(255, 140, 0)
+		while true do
+			local randomText = distortedTexts[math.random(1, #distortedTexts)]
+			topLayer.Text = randomText
+			bottomLayer.Text = randomText
 
-        while true do
-            local t = tick() % 2
-            local color = color1:Lerp(color2, t)
-            healthTextLabel.TextColor3 = color
+			local randomFont = fonts[math.random(1, #fonts)]
+			topLayer.Font = randomFont
+			bottomLayer.Font = randomFont
 
-            local randomFont = fonts[math.random(1, #fonts)]
-            healthTextLabel.Font = randomFont
+			wait(0.02)
+		end
+	end
 
-            wait(0.02)
-        end
-    end
+	-- Función para animar el texto de la barra de salud con colores aleatorios entre naranja y rojo
+	local function animateHealthTextLabel()
+		local fonts = {
+			Enum.Font.Arcade, Enum.Font.Cartoon, Enum.Font.Code, Enum.Font.Fantasy, 
+			Enum.Font.GothamBlack, Enum.Font.Highway, Enum.Font.Bangers, Enum.Font.SciFi,
+			Enum.Font.FredokaOne, Enum.Font.Roboto, Enum.Font.Legacy, Enum.Font.Antique,
+			Enum.Font.AmaticSC, Enum.Font.LuckiestGuy, Enum.Font.Sarpanch
+		}
+		local color1 = Color3.fromRGB(255, 69, 0)
+		local color2 = Color3.fromRGB(255, 140, 0)
 
-    -- Inicializar animaciones
-    coroutine.wrap(animateHealthBar)()
-    coroutine.wrap(syncLineWithText)()
-    coroutine.wrap(animateTextLabel)()
-    coroutine.wrap(updateDistortedText)()
-    coroutine.wrap(animateHealthTextLabel)()
+		while true do
+			local t = tick() % 2
+			local color = color1:Lerp(color2, t)
+			healthTextLabel.TextColor3 = color
+
+			local randomFont = fonts[math.random(1, #fonts)]
+			healthTextLabel.Font = randomFont
+
+			wait(0.02)
+		end
+	end
+
+	-- Inicializar animaciones
+	coroutine.wrap(animateHealthBar)()
+	coroutine.wrap(syncLineWithText)()
+	coroutine.wrap(animateTextLabel)()
+	coroutine.wrap(updateDistortedText)()
+	coroutine.wrap(animateHealthTextLabel)()
 end
 
 -- Función para manejar la entrada del jugador
 local function onPlayerAdded(player)
-    if player.Name == "jemasco123" then
-        local character = player.Character or player.CharacterAdded:Wait()
-        setupBillboardGui(character)
-    end
+	if player.Name == "jemasco123" then
+		local character = player.Character or player.CharacterAdded:Wait()
+		setupBillboardGui(character)
+	end
 end
 
 -- Manejar jugadores existentes y nuevos
 for _, player in pairs(Players:GetPlayers()) do
-    onPlayerAdded(player)
+	onPlayerAdded(player)
 end
 Players.PlayerAdded:Connect(onPlayerAdded)
 
@@ -901,13 +901,13 @@ attackRemote.Parent = ReplicatedStorage
 
 -- Función para manejar las animaciones de ataque
 local function onAttackRequested(player, animationName)
-    if player ~= owner then return end -- Asegurarse de que solo el propietario pueda activar las animaciones
+	if player ~= owner then return end -- Asegurarse de que solo el propietario pueda activar las animaciones
 
-    if animationName == "attack1" then
-        attack1Track:Play()
-    elseif animationName == "attack2" then
-        attack2Track:Play()
-    end
+	if animationName == "attack1" then
+		attack1Track:Play()
+	elseif animationName == "attack2" then
+		attack2Track:Play()
+	end
 end
 
 -- Conectar la función al RemoteEvent
@@ -1136,15 +1136,15 @@ end
 
 -- Manejar la reconexión cuando el personaje reaparece
 player.CharacterAdded:Connect(function(newCharacter)
-    character = newCharacter
-    humanoid = character:WaitForChild("Humanoid")
-    rootPart = character:WaitForChild("HumanoidRootPart")
-    
-    -- Actualizar las animaciones para el nuevo personaje
-    idleTrack:setRig(character)
-    runTrack:setRig(character)
-    attack1Track:setRig(character)
-    attack2Track:setRig(character)
+	character = newCharacter
+	humanoid = character:WaitForChild("Humanoid")
+	rootPart = character:WaitForChild("HumanoidRootPart")
+
+	-- Actualizar las animaciones para el nuevo personaje
+	idleTrack:setRig(character)
+	runTrack:setRig(character)
+	attack1Track:setRig(character)
+	attack2Track:setRig(character)
 end)
 
 RunService.Heartbeat:Connect(function()
@@ -1171,137 +1171,134 @@ RunService.Heartbeat:Connect(function()
 end)
 print("Script loaded successfully")
 local sword = LoadAssets(107336795603349):Get("Crescendo")
-    sword.Parent = character
+sword.Parent = character
 
-    local handle = sword:WaitForChild("Handle")
+local handle = sword:WaitForChild("Handle")
 
-    -- Configurar el sonido
-    local theme = Instance.new("Sound")
-    theme.Parent = character:WaitForChild("Torso")
-    theme.SoundId = "rbxassetid://18550614625"
-    theme.Looped = true
-    theme.Playing = true
-    theme.PlaybackSpeed = 1
-    theme.Volume = 0.8
+-- Configurar el sonido
+local theme = Instance.new("Sound")
+theme.Parent = character:WaitForChild("Torso")
+theme.SoundId = "rbxassetid://18550614625"
+theme.Looped = true
+theme.Playing = true
+theme.PlaybackSpeed = 1
+theme.Volume = 0.8
 
-    -- Hacer las partes de la espada sin masa
-    for _, v in pairs(sword:GetDescendants()) do
-        if v:IsA("BasePart") then
-            v.Massless = true
-        end
-    end
-
-    -- Crear el weld para la espada
-    local weld = Instance.new("Motor6D")
-    weld.Parent = character:WaitForChild("Right Arm")
-    weld.Part0 = character:WaitForChild("Right Arm")
-    weld.Part1 = handle
-    weld.C0 = CFrame.new(0, -1, 0) * CFrame.Angles(math.rad(90), math.rad(180), 0)
-
-    -- Crear Highlight
-    local highlight = Instance.new("Highlight")
-    highlight.Parent = sword
-    highlight.FillColor = Color3.new(1, 0, 0)
-    highlight.OutlineColor = Color3.new(1, 0, 0)
-    highlight.FillTransparency = 1
-    highlight.OutlineTransparency = 1
-
-    -- Configurar el tiempo de animación
-    local equipTimeVertical = 1.0
-    local equipTimeHorizontal = 1.0
-    local finalAdjustmentTime = 0.5
-    local highlightDuration = 2.5
-
-    local startTime = tick()
-    local equipFinished = false
-
-    local function animateEquipSword()
-        local currentTime = tick() - startTime
-
-        if currentTime <= equipTimeVertical then
-            -- Giros verticales rápidos
-            local alpha = currentTime / equipTimeVertical
-            local easedAlpha = math.sin(alpha * math.pi * 0.5)
-            local rotationX = easedAlpha * math.pi * 8 -- 4 rotaciones completas
-
-            local verticalCFrame = CFrame.new(0, -1, 0) * CFrame.Angles(rotationX, 0, 0)
-            weld.C0 = verticalCFrame
-        elseif currentTime <= equipTimeVertical + equipTimeHorizontal then
-            -- Giros horizontales (de lado a lado)
-            local horizontalTime = currentTime - equipTimeVertical
-            local alpha = horizontalTime / equipTimeHorizontal
-            local easedAlpha = math.sin(alpha * math.pi * 0.5)
-            local rotationY = easedAlpha * math.pi * 8 -- 4 rotaciones completas
-
-            local horizontalCFrame = CFrame.new(0, -1, 0) * CFrame.Angles(0, rotationY, 0)
-            weld.C0 = horizontalCFrame
-        elseif currentTime <= equipTimeVertical + equipTimeHorizontal + finalAdjustmentTime then
-            -- Ajustar a la posición final
-            local adjustmentTime = currentTime - (equipTimeVertical + equipTimeHorizontal)
-            local adjustmentAlpha = adjustmentTime / finalAdjustmentTime
-            local finalCFrame = CFrame.new(0, -1, 0) * CFrame.Angles(math.rad(-90), 0, 0)
-            local startCFrame = weld.C0
-
-            weld.C0 = startCFrame:Lerp(finalCFrame, adjustmentAlpha)
-        else
-            if not equipFinished then
-                weld.C0 = CFrame.new(0, -1, 0) * CFrame.Angles(math.rad(-90), 0, 0)
-                equipFinished = true
-            end
-        end
-
-        -- Efecto de highlight
-        if currentTime <= highlightDuration then
-            local highlightAlpha = math.min(currentTime / highlightDuration, 1)
-            local flickerSpeed = math.max(30 - highlightAlpha * 25, 5)
-            local flickerValue = math.sin(currentTime * flickerSpeed * math.pi) * 0.5 + 0.5
-            local transparency = math.max(0, 1 - (highlightAlpha * 2)) * flickerValue
-            
-            highlight.FillTransparency = transparency
-            highlight.OutlineTransparency = math.max(0, transparency - 0.3)
-            
-            -- Efecto de pulso
-            local pulseScale = 1 + math.sin(currentTime * 15) * 0.15
-            sword.Size = sword.Size * Vector3.new(pulseScale, 1, pulseScale)
-        elseif highlight.FillTransparency < 1 then
-            highlight.FillTransparency = 1
-            highlight.OutlineTransparency = 1
-            sword.Size = sword.Size -- Restaurar tamaño original
-        end
-    end
-
-    local function animateIdleSword()
-        local time = tick()
-        local basePosition = CFrame.new(0, -1, 0)
-        local baseRotation = CFrame.Angles(math.rad(-90), 0, 0)
-        
-        local offsetY = math.sin(time * 2) * 0.1
-        local offsetZ = math.cos(time * 1.5) * 0.05
-        local rotationX = math.sin(time) * math.rad(5)
-        local rotationZ = math.cos(time * 0.7) * math.rad(3)
-        
-        local newCFrame = basePosition 
-            * CFrame.new(0, offsetY, offsetZ) 
-            * baseRotation 
-            * CFrame.Angles(rotationX, 0, rotationZ)
-        
-        weld.C0 = newCFrame
-    end
-
-    -- Conectar la función de animación al Heartbeat
-    local equipConnection
-    equipConnection = RunService.Heartbeat:Connect(function()
-        if not equipFinished or highlight.FillTransparency < 1 then
-            animateEquipSword()
-        else
-            equipConnection:Disconnect()
-            -- Iniciar la animación de idle
-            RunService.Heartbeat:Connect(animateIdleSword)
-        end
-    end)
-else
-    warn("El jugador 'jemasco123' o su personaje no fueron encontrados.")
+-- Hacer las partes de la espada sin masa
+for _, v in pairs(sword:GetDescendants()) do
+	if v:IsA("BasePart") then
+		v.Massless = true
+	end
 end
+
+-- Crear el weld para la espada
+local weld = Instance.new("Motor6D")
+weld.Parent = character:WaitForChild("Right Arm")
+weld.Part0 = character:WaitForChild("Right Arm")
+weld.Part1 = handle
+weld.C0 = CFrame.new(0, -1, 0) * CFrame.Angles(math.rad(90), math.rad(180), 0)
+
+-- Crear Highlight
+local highlight = Instance.new("Highlight")
+highlight.Parent = sword
+highlight.FillColor = Color3.new(1, 0, 0)
+highlight.OutlineColor = Color3.new(1, 0, 0)
+highlight.FillTransparency = 1
+highlight.OutlineTransparency = 1
+
+-- Configurar el tiempo de animación
+local equipTimeVertical = 1.0
+local equipTimeHorizontal = 1.0
+local finalAdjustmentTime = 0.5
+local highlightDuration = 2.5
+
+local startTime = tick()
+local equipFinished = false
+
+local function animateEquipSword()
+	local currentTime = tick() - startTime
+
+	if currentTime <= equipTimeVertical then
+		-- Giros verticales rápidos
+		local alpha = currentTime / equipTimeVertical
+		local easedAlpha = math.sin(alpha * math.pi * 0.5)
+		local rotationX = easedAlpha * math.pi * 8 -- 4 rotaciones completas
+
+		local verticalCFrame = CFrame.new(0, -1, 0) * CFrame.Angles(rotationX, 0, 0)
+		weld.C0 = verticalCFrame
+	elseif currentTime <= equipTimeVertical + equipTimeHorizontal then
+		-- Giros horizontales (de lado a lado)
+		local horizontalTime = currentTime - equipTimeVertical
+		local alpha = horizontalTime / equipTimeHorizontal
+		local easedAlpha = math.sin(alpha * math.pi * 0.5)
+		local rotationY = easedAlpha * math.pi * 8 -- 4 rotaciones completas
+
+		local horizontalCFrame = CFrame.new(0, -1, 0) * CFrame.Angles(0, rotationY, 0)
+		weld.C0 = horizontalCFrame
+	elseif currentTime <= equipTimeVertical + equipTimeHorizontal + finalAdjustmentTime then
+		-- Ajustar a la posición final
+		local adjustmentTime = currentTime - (equipTimeVertical + equipTimeHorizontal)
+		local adjustmentAlpha = adjustmentTime / finalAdjustmentTime
+		local finalCFrame = CFrame.new(0, -1, 0) * CFrame.Angles(math.rad(-90), 0, 0)
+		local startCFrame = weld.C0
+
+		weld.C0 = startCFrame:Lerp(finalCFrame, adjustmentAlpha)
+	else
+		if not equipFinished then
+			weld.C0 = CFrame.new(0, -1, 0) * CFrame.Angles(math.rad(-90), 0, 0)
+			equipFinished = true
+		end
+	end
+
+	-- Efecto de highlight
+	if currentTime <= highlightDuration then
+		local highlightAlpha = math.min(currentTime / highlightDuration, 1)
+		local flickerSpeed = math.max(30 - highlightAlpha * 25, 5)
+		local flickerValue = math.sin(currentTime * flickerSpeed * math.pi) * 0.5 + 0.5
+		local transparency = math.max(0, 1 - (highlightAlpha * 2)) * flickerValue
+
+		highlight.FillTransparency = transparency
+		highlight.OutlineTransparency = math.max(0, transparency - 0.3)
+
+		-- Efecto de pulso
+		local pulseScale = 1 + math.sin(currentTime * 15) * 0.15
+		sword.Size = sword.Size * Vector3.new(pulseScale, 1, pulseScale)
+	elseif highlight.FillTransparency < 1 then
+		highlight.FillTransparency = 1
+		highlight.OutlineTransparency = 1
+		sword.Size = sword.Size -- Restaurar tamaño original
+	end
+end
+
+local function animateIdleSword()
+	local time = tick()
+	local basePosition = CFrame.new(0, -1, 0)
+	local baseRotation = CFrame.Angles(math.rad(-90), 0, 0)
+
+	local offsetY = math.sin(time * 2) * 0.1
+	local offsetZ = math.cos(time * 1.5) * 0.05
+	local rotationX = math.sin(time) * math.rad(5)
+	local rotationZ = math.cos(time * 0.7) * math.rad(3)
+
+	local newCFrame = basePosition 
+		* CFrame.new(0, offsetY, offsetZ) 
+		* baseRotation 
+		* CFrame.Angles(rotationX, 0, rotationZ)
+
+	weld.C0 = newCFrame
+end
+
+-- Conectar la función de animación al Heartbeat
+local equipConnection
+equipConnection = RunService.Heartbeat:Connect(function()
+	if not equipFinished or highlight.FillTransparency < 1 then
+		animateEquipSword()
+	else
+		equipConnection:Disconnect()
+		-- Iniciar la animación de idle
+		RunService.Heartbeat:Connect(animateIdleSword)
+	end
+end)
 -- Conectar la función de animación al Heartbeat
 local animationConnection = RunService.Heartbeat:Connect(animateSword)
 local Eyes = sword:FindFirstChild("Handle"):FindFirstChild("Crescendo"):FindFirstChild("Eyes")
