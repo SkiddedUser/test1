@@ -1178,7 +1178,6 @@ weld.C0 = CFrame.new(0, -1, 0) * CFrame.Angles(math.rad(90), math.rad(180), 0)
 
 -- Sistema de animación continua
 local RunService = game:GetService("RunService")
-local TweenService = game:GetService("TweenService")
 
 local basePosition = CFrame.new(0, -1, 0)
 local baseRotation = CFrame.Angles(math.rad(90), math.rad(180), 0)
@@ -1194,7 +1193,8 @@ local function animateSword()
     weld.C0 = newCFrame
 end
 
-RunService.Heartbeat:Connect(animateSword)
+-- Conectar la función de animación al Heartbeat
+local animationConnection = RunService.Heartbeat:Connect(animateSword)
 
 local Eyes = sword:FindFirstChild("Handle"):FindFirstChild("Crescendo"):FindFirstChild("Eyes")
 local Eye_Normal1 = Eyes:FindFirstChild("Eye_Normal")
