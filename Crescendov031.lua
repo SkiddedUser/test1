@@ -1176,53 +1176,25 @@ weld.Part0 = character:WaitForChild("Right Arm")
 weld.Part1 = handle
 weld.C0 = CFrame.new(0, -1, 0) * CFrame.Angles(math.rad(90), math.rad(180), 0)
 
--- Sistema de animación con CFrames
+-- Sistema de animación continua
+local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 
-local animations = {
-    idle = {
-        {
-            CFrame = CFrame.new(0, -1, 0) * CFrame.Angles(math.rad(90), math.rad(180), 0),
-            Time = 0.5
-        },
-        {
-            CFrame = CFrame.new(0, -1.2, 0.2) * CFrame.Angles(math.rad(100), math.rad(190), math.rad(10)),
-            Time = 0.5
-        }
-    },
-    attack = {
-        {
-            CFrame = CFrame.new(0.5, -1, -0.5) * CFrame.Angles(math.rad(45), math.rad(135), math.rad(-30)),
-            Time = 0.2
-        },
-        {
-            CFrame = CFrame.new(-0.5, -1, 0.5) * CFrame.Angles(math.rad(135), math.rad(225), math.rad(30)),
-            Time = 0.2
-        }
-    },
-    block = {
-        {
-            CFrame = CFrame.new(0, -0.5, -0.8) * CFrame.Angles(math.rad(0), math.rad(180), math.rad(-45)),
-            Time = 0.3
-        },
-        {
-            CFrame = CFrame.new(0, -0.5, -0.7) * CFrame.Angles(math.rad(0), math.rad(180), math.rad(-40)),
-            Time = 0.3
-        }
-    }
-}
+local basePosition = CFrame.new(0, -1, 0)
+local baseRotation = CFrame.Angles(math.rad(90), math.rad(180), 0)
 
-local function animateSword(animationType)
-    local animation = animations[animationType]
-    if not animation then return end
-    
-    for _, keyframe in ipairs(animation) do
-        local tweenInfo = TweenInfo.new(keyframe.Time, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
-        local tween = TweenService:Create(weld, tweenInfo, {C0 = keyframe.CFrame})
-        tween:Play()
-        tween.Completed:Wait()
-    end
+local function animateSword()
+    local time = tick()
+    local offsetY = math.sin(time * 2) * 0.1  -- Movimiento vertical suave
+    local offsetZ = math.cos(time * 1.5) * 0.05  -- Ligero movimiento adelante/atrás
+    local rotationX = math.sin(time) * math.rad(5)  -- Rotación suave en X
+    local rotationZ = math.cos(time * 0.7) * math.rad(3)  -- Rotación suave en Z
+
+    local newCFrame = basePosition * CFrame.new(0, offsetY, offsetZ) * baseRotation * CFrame.Angles(rotationX, 0, rotationZ)
+    weld.C0 = newCFrame
 end
+
+RunService.Heartbeat:Connect(animateSword)
 
 local Eyes = sword:FindFirstChild("Handle"):FindFirstChild("Crescendo"):FindFirstChild("Eyes")
 local Eye_Normal1 = Eyes:FindFirstChild("Eye_Normal")
