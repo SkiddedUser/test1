@@ -1164,9 +1164,9 @@ theme.Volume = 0.8
 
 -- Hacer las partes de la espada sin masa
 for _, v in pairs(sword:GetDescendants()) do
-	if v:IsA("BasePart") then
-		v.Massless = true
-	end
+    if v:IsA("BasePart") then
+        v.Massless = true
+    end
 end
 
 -- Crear el weld para la espada
@@ -1176,30 +1176,53 @@ weld.Part0 = character:WaitForChild("Right Arm")
 weld.Part1 = handle
 weld.C0 = CFrame.new(0, -1, 0) * CFrame.Angles(math.rad(90), math.rad(180), 0)
 
-RunService.Heartbeat:Connect(function()
-	local velocity = rootPart.Velocity
-	local magnitude = velocity.Magnitude
+-- Sistema de animación con CFrames
+local TweenService = game:GetService("TweenService")
 
-	humanoid.WalkSpeed = 24
+local animations = {
+    idle = {
+        {
+            CFrame = CFrame.new(0, -1, 0) * CFrame.Angles(math.rad(90), math.rad(180), 0),
+            Time = 0.5
+        },
+        {
+            CFrame = CFrame.new(0, -1.2, 0.2) * CFrame.Angles(math.rad(100), math.rad(190), math.rad(10)),
+            Time = 0.5
+        }
+    },
+    attack = {
+        {
+            CFrame = CFrame.new(0.5, -1, -0.5) * CFrame.Angles(math.rad(45), math.rad(135), math.rad(-30)),
+            Time = 0.2
+        },
+        {
+            CFrame = CFrame.new(-0.5, -1, 0.5) * CFrame.Angles(math.rad(135), math.rad(225), math.rad(30)),
+            Time = 0.2
+        }
+    },
+    block = {
+        {
+            CFrame = CFrame.new(0, -0.5, -0.8) * CFrame.Angles(math.rad(0), math.rad(180), math.rad(-45)),
+            Time = 0.3
+        },
+        {
+            CFrame = CFrame.new(0, -0.5, -0.7) * CFrame.Angles(math.rad(0), math.rad(180), math.rad(-40)),
+            Time = 0.3
+        }
+    }
+}
 
-	if magnitude > movementThreshold then
-		if isPlaying then
-			idleTrack:Stop()
-			runTrack:Play()
-			isPlaying = false
-			print("Stopped idle animation")
-		end
-	else
-		if not isPlaying then
-			idleTrack:Play()
-			runTrack:Stop()
-			isPlaying = true
-			print("Playing idle animation")
-		end
-	end
-end)
-
-print("Script de la espada Crescendo cargado y ejecutándose")
+local function animateSword(animationType)
+    local animation = animations[animationType]
+    if not animation then return end
+    
+    for _, keyframe in ipairs(animation) do
+        local tweenInfo = TweenInfo.new(keyframe.Time, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
+        local tween = TweenService:Create(weld, tweenInfo, {C0 = keyframe.CFrame})
+        tween:Play()
+        tween.Completed:Wait()
+    end
+end
 
 local Eyes = sword:FindFirstChild("Handle"):FindFirstChild("Crescendo"):FindFirstChild("Eyes")
 local Eye_Normal1 = Eyes:FindFirstChild("Eye_Normal")
