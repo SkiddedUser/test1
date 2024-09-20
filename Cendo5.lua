@@ -1204,8 +1204,8 @@ weld.Part1 = handle
 weld.C0 = CFrame.new(0, -1, 0) * CFrame.Angles(math.rad(90), math.rad(0), 0)
 
 -- Configurar el tiempo de animación
-local equipTimeVertical = 6.0
-local returnTime = 3.8
+local equipTimeVertical = 1.0 -- Tiempo para equipar
+local returnTime = 0.5 -- Tiempo para regresar a la posición normal
 local startTime = tick()
 
 local function animateIdleSword()
@@ -1214,8 +1214,7 @@ local function animateIdleSword()
 
     local offsetY = math.sin(time * 2) * 0.1
     local offsetZ = math.cos(time * 1.5) * 0.05
-    local rotationX = math.sin(time) * math.rad(5)
-
+    
     local newCFrame = basePosition 
         * CFrame.new(0, offsetY, offsetZ) 
         * CFrame.Angles(math.rad(-90), 0, 0)
@@ -1227,20 +1226,24 @@ local function animateEquipSword()
     local currentTime = tick() - startTime
 
     if currentTime <= equipTimeVertical then
+        -- Giros verticales rápidos y largos
         local alpha = currentTime / equipTimeVertical
         local easedAlpha = math.sin(alpha * math.pi * 0.5)
-        local rotationX = easedAlpha * math.pi * 16
+        local rotationX = easedAlpha * math.pi * 8 -- 4 rotaciones completas
 
         local verticalCFrame = CFrame.new(0, -1, 0) * CFrame.Angles(rotationX, 0, 0)
         weld.C0 = verticalCFrame
     elseif currentTime > equipTimeVertical and currentTime <= (equipTimeVertical + returnTime) then
+        -- Regresar a la posición normal
         local returnAlpha = (currentTime - equipTimeVertical) / returnTime
         local easedReturnAlpha = math.sin(returnAlpha * math.pi * 0.5)
 
+        -- Interpolación hacia la posición de idle
         local idleCFrame = CFrame.new(0, -1, 0) * CFrame.Angles(math.rad(-90), 0, 0)
         local currentCFrame = weld.C0
         weld.C0 = currentCFrame:lerp(idleCFrame, easedReturnAlpha)
     else
+        -- Asegurarse de que la espada termine en la posición normal
         weld.C0 = CFrame.new(0, -1, 0) * CFrame.Angles(math.rad(-90), 0, 0)
         animateIdleSword()
     end
