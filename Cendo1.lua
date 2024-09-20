@@ -1294,6 +1294,7 @@ local function findEyeParts(eyeGroup)
     return base, center, left, right
 end
 
+-- Buscar partes de ojos
 local Base1, Center1, Left1, Right1
 local Base2, Center2, Left2, Right2
 
@@ -1311,16 +1312,18 @@ if not success2 then
     error("Error al encontrar partes en Eye_Normal2: " .. result2)
 end
 
+-- Función para agitar un objeto (Base o partes de los ojos)
 local function shakeObject(object)
     local originalPosition = object.Position
     while true do
-        local offsetX = math.random(-1, 0.7) * 1
-        local offsetY = math.random(-1, 0.7) * 1
+        local offsetX = math.random(-1, 1) * 0.1
+        local offsetY = math.random(-1, 1) * 0.1
         object.Position = originalPosition + UDim2.new(0, offsetX, 0, offsetY)
         wait(0.025)
     end
 end
 
+-- Función para mover los ojos suavemente a la izquierda, derecha o centro
 local function tweenEyePosition(eye, endPosition, duration)
     local tweenInfo = TweenInfo.new(duration, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
     local tween = TweenService:Create(eye, tweenInfo, {Position = endPosition})
@@ -1328,6 +1331,7 @@ local function tweenEyePosition(eye, endPosition, duration)
     return tween
 end
 
+-- Función que realiza el movimiento de los ojos
 local function animateEyeMovement(centerEye, leftEye, rightEye, direction)
     if direction == "right" then
         tweenEyePosition(centerEye, UDim2.new(0.8, 0, 0.5, 0), 0.5)
@@ -1344,7 +1348,9 @@ local function animateEyeMovement(centerEye, leftEye, rightEye, direction)
     end
 end
 
+-- Función para manejar la animación completa de ambos ojos
 local function animateBothEyes(Base1, Center1, Left1, Right1, Base2, Center2, Left2, Right2)
+    -- Agitar los ojos y las bases
     coroutine.wrap(function()
         shakeObject(Base1)
         shakeObject(Center1)
@@ -1362,18 +1368,22 @@ local function animateBothEyes(Base1, Center1, Left1, Right1, Base2, Center2, Le
     while true do
         print("Iniciando ciclo de animación para ambos ojos")
 
+        -- Movimiento hacia la derecha
         animateEyeMovement(Center1, Left1, Right1, "right")
         animateEyeMovement(Center2, Left2, Right2, "right")
         wait(1)
 
+        -- Volver al centro
         animateEyeMovement(Center1, Left1, Right1, "center")
         animateEyeMovement(Center2, Left2, Right2, "center")
         wait(1)
 
+        -- Movimiento hacia la izquierda
         animateEyeMovement(Center1, Left1, Right1, "left")
         animateEyeMovement(Center2, Left2, Right2, "left")
         wait(1)
 
+        -- Volver al centro
         animateEyeMovement(Center1, Left1, Right1, "center")
         animateEyeMovement(Center2, Left2, Right2, "center")
         wait(1)
@@ -1382,5 +1392,6 @@ local function animateBothEyes(Base1, Center1, Left1, Right1, Base2, Center2, Le
     end
 end
 
+-- Iniciar la animación completa
 print("Iniciando animación sincronizada de los ojos y sus bases")
 animateBothEyes(Base1, Center1, Left1, Right1, Base2, Center2, Left2, Right2)
