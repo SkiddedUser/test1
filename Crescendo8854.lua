@@ -1143,11 +1143,11 @@ end
 -- Manejar la reconexión cuando el personaje reaparece
 local function equip()
 	if not isPlaying then
-		local equipAnimTrack = humanoid:LoadAnimation(equipTrack)
-		equipAnimTrack:Play()
-		isPlaying = true -- Marcar como en uso la animación de equipar
+		local equipAnimTrack = humanoid:LoadAnimation(equipTrack) -- Cargar la animación en el humanoide
+		equipAnimTrack:Play() -- Reproducir la animación de equipar
 		equipAnimTrack.Stopped:Wait() -- Esperar a que termine la animación de equipar
 		idleTrack:Play() -- Reiniciar a la animación idle después de equipar
+		isPlaying = true
 		print("Equip animation played")
 	end
 end
