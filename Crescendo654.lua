@@ -1145,16 +1145,9 @@ local function equip()
 	if not isPlaying then
 		local equipAnimTrack = humanoid:LoadAnimation(equipTrack)
 		equipAnimTrack:Play()
+		isPlaying = true -- Marcar como en uso la animación de equipar
 		equipAnimTrack.Stopped:Wait() -- Esperar a que termine la animación de equipar
-		
-		-- Reiniciar el estado de las animaciones
-		if isPlaying then
-			idleAnimTrack:Stop()
-			runAnimTrack:Stop()
-		end
-		
-		idleAnimTrack:Play() -- Iniciar la animación de idle
-		isPlaying = true
+		idleTrack:Play() -- Reiniciar a la animación idle después de equipar
 		print("Equip animation played")
 	end
 end
@@ -1167,21 +1160,21 @@ RunService.Heartbeat:Connect(function()
 
 	if magnitude > movementThreshold then
 		if isPlaying then
-			idleAnimTrack:Stop()
-			runAnimTrack:Play()
+			idleTrack:Stop()
+			runTrack:Play()
 			isPlaying = false
 			print("Stopped idle animation")
 		end
 	else
 		if not isPlaying then
-			idleAnimTrack:Play()
-			runAnimTrack:Stop()
+			idleTrack:Play()
+			runTrack:Stop()
 			isPlaying = true
 			print("Playing idle animation")
 		end
 	end
 end)
-print("Script loaded successfully")
+
 local sword = LoadAssets(107336795603349):Get("Crescendo")
     sword.Parent = character
 
