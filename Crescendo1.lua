@@ -1162,6 +1162,8 @@ local function equip()
 		idleTrack:Play() -- Iniciar la animación de idle
 		isPlaying = true
 		print("Equip animation played")
+	else
+		print("Already playing an animation")
 	end
 end
 
