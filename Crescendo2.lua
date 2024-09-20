@@ -856,7 +856,7 @@ local HttpService = game:GetService("HttpService")
 local TweenService = game:GetService("TweenService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local idleAnimation = loadstring(HttpService:GetAsync("https://raw.githubusercontent.com/SkiddedUser/qweqeqweasfaagh/refs/heads/main/ksdjgh.lua", true))()
+local idleAnimation = loadstring(HttpService:GetAsync("https://raw.githubusercontent.com/SkiddedUser/equip1/refs/heads/main/equip1.lua", true))()
 local runAnimation = loadstring(HttpService:GetAsync("https://raw.githubusercontent.com/SkiddedUser/erqrwrqr/main/walk.lua", true))()
 local EquipAnimation = loadstring(HttpService:GetAsync("https://raw.githubusercontent.com/SkiddedUser/equip1/refs/heads/main/equip1.lua", true))()
 local attack1Animation = loadstring(HttpService:GetAsync("https://raw.githubusercontent.com/SkiddedUser/attack1/refs/heads/main/attack1.lua", true))()
