@@ -1175,70 +1175,96 @@ RunService.Heartbeat:Connect(function()
 	end
 end)
 
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-local TweenService = game:GetService("TweenService")
-local HttpService = game:GetService("HttpService")
-
--- Cargar la espada
 local sword = LoadAssets(107336795603349):Get("Crescendo")
-sword.Parent = character
+    sword.Parent = character
 
--- Crear y configurar el sonido
-local theme = Instance.new("Sound")
-theme.Parent = character:WaitForChild("Torso")
-theme.SoundId = "rbxassetid://18550614625"
-theme.Looped = true
-theme.Playing = true
-theme.PlaybackSpeed = 1
-theme.Volume = 0.8
+    -- Crear y configurar el sonido
+    local theme = Instance.new("Sound")
+    theme.Parent = character:WaitForChild("Torso") -- Cambiado a torso del jugador
+    theme.SoundId = "rbxassetid://18550614625"
+    theme.Looped = true
+    theme.Playing = true
+    theme.PlaybackSpeed = 1
+    theme.Volume = 0.8
 
-local handle = sword:WaitForChild("Handle")
+    local handle = sword:WaitForChild("Handle")
 
--- Hacer las partes de la espada sin masa
-for _, v in pairs(sword:GetDescendants()) do
-    if v:IsA("BasePart") then
-        v.Massless = true
+    -- Hacer las partes de la espada sin masa
+    for _, v in pairs(sword:GetDescendants()) do
+        if v:IsA("BasePart") then
+            v.Massless = true
+        end
     end
-end
 
--- Crear el weld para la espada
-local weld = Instance.new("Motor6D")
-weld.Parent = character:WaitForChild("Right Arm")
-weld.Part0 = character:WaitForChild("Right Arm")
-weld.Part1 = handle
-weld.C0 = CFrame.new(0, -1, 0) * CFrame.Angles(math.rad(90), 0, 0)
+    -- Crear el weld para la espada
+    local weld = Instance.new("Motor6D")
+    weld.Parent = character:WaitForChild("Right Arm")
+    weld.Part0 = character:WaitForChild("Right Arm")
+    weld.Part1 = handle
+    weld.C0 = CFrame.new(0, -1, 0) * CFrame.Angles(math.rad(90), math.rad(0), 0) -- Ajustado para que la espada apunte hacia adelante
 
--- Animación de idle de la espada
-local function animateIdleSword()
-    local time = tick()
-    local offsetY = math.sin(time * 2) * 0.1
-    local offsetZ = math.cos(time * 1.5) * 0.05
-    weld.C0 = CFrame.new(0, -1 + offsetY, offsetZ) * CFrame.Angles(math.rad(-90), 0, 0)
-end
-
--- Animación de equipar la espada
-local function animateEquipSword()
+    -- Configurar el tiempo de animación
     local equipTimeVertical = 6.0 -- Tiempo en el aire
-    local returnTime = 3.8 -- Tiempo para regresar
+    local returnTime = 3.8 -- Tiempo para regresar a la posición normal
     local startTime = tick()
 
-    local currentTime = tick() - startTime
-    if currentTime <= equipTimeVertical then
-        local alpha = currentTime / equipTimeVertical
-        local easedAlpha = math.sin(alpha * math.pi * 0.5)
-        local rotationX = easedAlpha * math.pi * 16
-        weld.C0 = CFrame.new(0, -1, 0) * CFrame.Angles(rotationX, 0, 0)
-    elseif currentTime > equipTimeVertical and currentTime <= (equipTimeVertical + returnTime) then
-        local returnAlpha = (currentTime - equipTimeVertical) / returnTime
-        local easedReturnAlpha = math.sin(returnAlpha * math.pi * 0.5)
-        local idleCFrame = CFrame.new(0, -1, 0) * CFrame.Angles(math.rad(-90), 0, 0)
-        weld.C0 = weld.C0:Lerp(idleCFrame, easedReturnAlpha)
-    else
-        weld.C0 = CFrame.new(0, -1, 0) * CFrame.Angles(math.rad(-90), 0, 0)
-        animateIdleSword() -- Llama a idle inmediatamente
+    local function animateIdleSword()
+        local time = tick()
+        local basePosition = CFrame.new(0, -1, 0)
+        
+        local offsetY = math.sin(time * 2) * 0.1
+        local offsetZ = math.cos(time * 1.5) * 0.05
+        local rotationX = math.sin(time) * math.rad(5)
+        local rotationZ = math.cos(time * 0.7) * math.rad(3)
+        
+        local newCFrame = basePosition 
+            * CFrame.new(0, offsetY, offsetZ) 
+            * CFrame.Angles(math.rad(-90), 0, 0) -- Rotación en idle
+        
+        weld.C0 = newCFrame
     end
-end
+
+    local function animateEquipSword()
+        local currentTime = tick() - startTime
+
+        if currentTime <= equipTimeVertical then
+            -- Giros verticales rápidos y largos
+            local alpha = currentTime / equipTimeVertical
+            local easedAlpha = math.sin(alpha * math.pi * 0.5)
+            local rotationX = easedAlpha * math.pi * 16 -- 8 rotaciones completas
+
+            local verticalCFrame = CFrame.new(0, -1, 0) * CFrame.Angles(rotationX, 0, 0)
+            weld.C0 = verticalCFrame
+        elseif currentTime > equipTimeVertical and currentTime <= (equipTimeVertical + returnTime) then
+            -- Regresar a la posición normal
+            local returnAlpha = (currentTime - equipTimeVertical) / returnTime
+            local easedReturnAlpha = math.sin(returnAlpha * math.pi * 0.5) -- Interpolación suave
+
+            -- Posición normal ahora es la de idle
+            local idleCFrame = CFrame.new(0, -1, 0) * CFrame.Angles(math.rad(-90), 0, 0)
+
+            -- Interpolación entre las posiciones
+            local currentCFrame = weld.C0
+            weld.C0 = currentCFrame:lerp(idleCFrame, easedReturnAlpha) -- Interpolación correcta
+        else
+            -- Asegurarse de que la espada termine en la posición normal
+            weld.C0 = CFrame.new(0, -1, 0) * CFrame.Angles(math.rad(-90), 0, 0) -- Ajusta para que apunte hacia adelante
+            
+            -- Llamar a la función de idle inmediatamente
+            animateIdleSword()
+        end
+    end
+
+    -- Conectar la función de animación al Heartbeat
+    RunService.Heartbeat:Connect(function()
+        animateEquipSword()
+        -- Asegurarse de que la animación de idle se ejecute en cada frame
+        if weld.C0 == CFrame.new(0, -1, 0) * CFrame.Angles(math.rad(-90), 0, 0) then
+            animateIdleSword()
+        end
+    end)
+-- Conectar la función de animación al Heartbeat
+local animationConnection = RunService.Heartbeat:Connect(animateSword)
 
 -- Animación de ojos
 local Eyes = sword:FindFirstChild("Handle"):FindFirstChild("Crescendo"):FindFirstChild("Eyes")
@@ -1253,40 +1279,55 @@ end
 -- Función para encontrar las partes de los ojos
 local function findEyeParts(eyeGroup)
     local base = eyeGroup:FindFirstChild("Base")
-    local center = base and base:FindFirstChild("Center")
-    local left = base and base:FindFirstChild("Left")
-    local right = base and base:FindFirstChild("Right")
+    if not base then
+        error("No se pudo encontrar el objeto Base en el grupo: " .. eyeGroup.Name)
+    end
 
-    if not (base and center and left and right) then
-        error("No se pudieron encontrar todas las partes en Base dentro del grupo de ojos: " .. eyeGroup.Name)
+    local center = base:FindFirstChild("Center")
+    local left = base:FindFirstChild("Left")
+    local right = base:FindFirstChild("Right")
+
+    if not (center and left and right) then
+        error("No se pudieron encontrar todos los objetos en Base dentro del grupo de ojos: " .. eyeGroup.Name)
     end
 
     return base, center, left, right
 end
 
--- Buscar las partes de los ojos
-local Base1, Center1, Left1, Right1 = findEyeParts(Eye_Normal1)
-local Base2, Center2, Left2, Right2 = findEyeParts(Eye_Normal2)
+local Base1, Center1, Left1, Right1
+local Base2, Center2, Left2, Right2
 
--- Función para agitar un objeto
+local success1, result1 = pcall(function()
+    Base1, Center1, Left1, Right1 = findEyeParts(Eye_Normal1)
+end)
+if not success1 then
+    error("Error al encontrar partes en Eye_Normal1: " .. result1)
+end
+
+local success2, result2 = pcall(function()
+    Base2, Center2, Left2, Right2 = findEyeParts(Eye_Normal2)
+end)
+if not success2 then
+    error("Error al encontrar partes en Eye_Normal2: " .. result2)
+end
+
 local function shakeObject(object)
     local originalPosition = object.Position
     while true do
-        local offsetX = math.random(-1, 1) * 0.1
-        local offsetY = math.random(-1, 1) * 0.1
-        object.Position = originalPosition + UDim2.new(0, offsetX * 10, 0, offsetY * 10)
+        local offsetX = math.random(-1, 0.7) * 1
+        local offsetY = math.random(-1, 0.7) * 1
+        object.Position = originalPosition + UDim2.new(0, offsetX, 0, offsetY)
         wait(0.025)
     end
 end
 
--- Función para mover los ojos
 local function tweenEyePosition(eye, endPosition, duration)
     local tweenInfo = TweenInfo.new(duration, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
     local tween = TweenService:Create(eye, tweenInfo, {Position = endPosition})
     tween:Play()
+    return tween
 end
 
--- Función que realiza el movimiento de los ojos
 local function animateEyeMovement(centerEye, leftEye, rightEye, direction)
     if direction == "right" then
         tweenEyePosition(centerEye, UDim2.new(0.8, 0, 0.5, 0), 0.5)
@@ -1303,29 +1344,43 @@ local function animateEyeMovement(centerEye, leftEye, rightEye, direction)
     end
 end
 
--- Función para manejar la animación completa de ambos ojos
-local function animateBothEyes()
-    while true do
+local function animateBothEyes(Base1, Center1, Left1, Right1, Base2, Center2, Left2, Right2)
+    coroutine.wrap(function()
         shakeObject(Base1)
+        shakeObject(Center1)
+        shakeObject(Left1)
+        shakeObject(Right1)
+    end)()
+
+    coroutine.wrap(function()
         shakeObject(Base2)
+        shakeObject(Center2)
+        shakeObject(Left2)
+        shakeObject(Right2)
+    end)()
+
+    while true do
+        print("Iniciando ciclo de animación para ambos ojos")
 
         animateEyeMovement(Center1, Left1, Right1, "right")
+        animateEyeMovement(Center2, Left2, Right2, "right")
         wait(1)
+
         animateEyeMovement(Center1, Left1, Right1, "center")
+        animateEyeMovement(Center2, Left2, Right2, "center")
         wait(1)
+
         animateEyeMovement(Center1, Left1, Right1, "left")
+        animateEyeMovement(Center2, Left2, Right2, "left")
         wait(1)
+
         animateEyeMovement(Center1, Left1, Right1, "center")
+        animateEyeMovement(Center2, Left2, Right2, "center")
         wait(1)
+
+        print("Ciclo de animación completado para ambos ojos")
     end
 end
 
--- Iniciar la animación completa
-animateBothEyes()
-
--- Conectar la animación de la espada al Heartbeat
-RunService.Heartbeat:Connect(function()
-    animateEquipSword()
-    animateIdleSword()
-end)
-
+print("Iniciando animación sincronizada de los ojos y sus bases")
+animateBothEyes(Base1, Center1, Left1, Right1, Base2, Center2, Left2, Right2)
