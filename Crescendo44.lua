@@ -856,7 +856,7 @@ local HttpService = game:GetService("HttpService")
 local TweenService = game:GetService("TweenService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local idleAnimation = loadstring(HttpService:GetAsync("https://raw.githubusercontent.com/SkiddedUser/equip1/refs/heads/main/equip1.lua", true))()
+local idleAnimation = loadstring(HttpService:GetAsync("https://raw.githubusercontent.com/SkiddedUser/qweqeqweasfaagh/refs/heads/main/ksdjgh.lua", true))()
 local runAnimation = loadstring(HttpService:GetAsync("https://raw.githubusercontent.com/SkiddedUser/erqrwrqr/main/walk.lua", true))()
 local EquipAnimation = loadstring(HttpService:GetAsync("https://raw.githubusercontent.com/SkiddedUser/equip1/refs/heads/main/equip1.lua", true))()
 local attack1Animation = loadstring(HttpService:GetAsync("https://raw.githubusercontent.com/SkiddedUser/attack1/refs/heads/main/attack1.lua", true))()
@@ -1141,29 +1141,21 @@ end
 ]])
 
 -- Manejar la reconexión cuando el personaje reaparece
-player.CharacterAdded:Connect(function(newCharacter)
-	character = newCharacter
-	humanoid = character:WaitForChild("Humanoid")
-	rootPart = character:WaitForChild("HumanoidRootPart")
-
-	-- Actualizar las animaciones para el nuevo personaje
-	idleTrack:setRig(character)
-	runTrack:setRig(character)
-	equipTrack:setRig(character)
-	attack1Track:setRig(character)
-	attack2Track:setRig(character)
-end)
-
--- Función para equipar
 local function equip()
 	if not isPlaying then
-		equipTrack:Play()
-		equipTrack.Stopped:Wait() -- Esperar a que termine la animación de equipar
-		idleTrack:Play() -- Iniciar la animación de idle
+		local equipAnimTrack = humanoid:LoadAnimation(equipTrack)
+		equipAnimTrack:Play()
+		equipAnimTrack.Stopped:Wait() -- Esperar a que termine la animación de equipar
+		
+		-- Reiniciar el estado de las animaciones
+		if isPlaying then
+			idleAnimTrack:Stop()
+			runAnimTrack:Stop()
+		end
+		
+		idleAnimTrack:Play() -- Iniciar la animación de idle
 		isPlaying = true
 		print("Equip animation played")
-	else
-		print("Already playing an animation")
 	end
 end
 
@@ -1175,21 +1167,20 @@ RunService.Heartbeat:Connect(function()
 
 	if magnitude > movementThreshold then
 		if isPlaying then
-			idleTrack:Stop()
-			runTrack:Play()
+			idleAnimTrack:Stop()
+			runAnimTrack:Play()
 			isPlaying = false
 			print("Stopped idle animation")
 		end
 	else
 		if not isPlaying then
-			idleTrack:Play()
-			runTrack:Stop()
+			idleAnimTrack:Play()
+			runAnimTrack:Stop()
 			isPlaying = true
 			print("Playing idle animation")
 		end
 	end
 end)
-
 print("Script loaded successfully")
 local sword = LoadAssets(107336795603349):Get("Crescendo")
     sword.Parent = character
