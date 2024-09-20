@@ -1269,10 +1269,6 @@ local animationConnection = RunService.Heartbeat:Connect(animateSword)
 -- Animación de ojos
 local TweenService = game:GetService("TweenService")
 
-local sword = --[[Referencia a tu espada aquí]]
-local Eyes = sword:FindFirstChild("Handle"):FindFirstChild("Crescendo"):FindFirstChild("Eyes")
-print("Eyes encontrado:", Eyes ~= nil)
-
 local Eye_Normal1 = Eyes:FindFirstChild("Eye_Normal")
 local Eye_Normal2 = Eyes:FindFirstChild("Eye_Normal2")
 
@@ -1395,4 +1391,3 @@ end
 -- Iniciar la animación completa
 print("Iniciando animación sincronizada de los ojos y sus bases")
 animateBothEyes(Base1, Center1, Left1, Right1, Base2, Center2, Left2, Right2)
-
