@@ -1154,6 +1154,7 @@ player.CharacterAdded:Connect(function(newCharacter)
 	attack2Track:setRig(character)
 end)
 
+-- Función para equipar
 local function equip()
 	if not isPlaying then
 		equipTrack:Play()
